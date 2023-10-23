@@ -1,4 +1,4 @@
-package com.example.tackle;
+package com.example.tackle.member.service;
 
 import com.example.tackle.dto.JoinRequestDto;
 import com.example.tackle.dto.TokenDto;

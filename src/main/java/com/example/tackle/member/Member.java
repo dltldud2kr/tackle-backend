@@ -1,4 +1,4 @@
-package com.example.tackle;
+package com.example.tackle.member;
 
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;

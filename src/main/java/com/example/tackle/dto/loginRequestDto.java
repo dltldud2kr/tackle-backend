@@ -1,13 +1,12 @@
 package com.example.tackle.dto;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@NoArgsConstructor
 @AllArgsConstructor
-@Getter
+@NoArgsConstructor
+@Data
+@Builder
 public class loginRequestDto {
 
     private String userId;

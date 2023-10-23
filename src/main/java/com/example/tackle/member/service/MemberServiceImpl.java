@@ -1,15 +1,15 @@
-package com.example.tackle;
+package com.example.tackle.member.service;
 
+import com.example.tackle.member.repository.MemberRepository;
 import com.example.tackle._enum.CustomExceptionCode;
 import com.example.tackle.auth.JwtTokenProvider;
 import com.example.tackle.dto.JoinRequestDto;
 import com.example.tackle.dto.TokenDto;
-import com.example.tackle.dto.loginRequestDto;
 import com.example.tackle.exception.CustomException;
+import com.example.tackle.member.Member;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -22,7 +22,7 @@ import java.util.Optional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class MemberServiceImpl implements MemberService{
+public class MemberServiceImpl implements MemberService {
     private final MemberRepository memberRepository;
 
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
@@ -86,7 +86,6 @@ public class MemberServiceImpl implements MemberService{
                     .nickname(request.getNickname())
                     .refreshToken(null)
                     .regDt(LocalDateTime.now())
-                    .password(request.getPassword())
                     .build();
             memberRepository.save(member);
             return true;

@@ -1,5 +1,6 @@
-package com.example.tackle;
+package com.example.tackle.member.controller;
 
+import com.example.tackle.member.service.MemberService;
 import com.example.tackle._enum.ApiResponseCode;
 import com.example.tackle.dto.JoinRequestDto;
 import com.example.tackle.dto.ResultDTO;
@@ -9,6 +10,7 @@ import com.example.tackle.exception.CustomException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
+@Tag(name = "회원 API", description = "")
 public class MemberController {
     private final MemberService memberService;
 

@@ -1,8 +1,8 @@
 package com.example.tackle.auth;
 
 
-import com.example.tackle.Member;
-import com.example.tackle.MemberRepository;
+import com.example.tackle.member.Member;
+import com.example.tackle.member.repository.MemberRepository;
 
 import com.example.tackle._enum.CustomExceptionCode;
 import com.example.tackle.dto.TokenDto;
