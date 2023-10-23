@@ -1,5 +1,7 @@
 package com.example.tackle.member.controller;
 
+import com.example.tackle.member.Member;
+import com.example.tackle.member.repository.MemberRepository;
 import com.example.tackle.member.service.MemberService;
 import com.example.tackle._enum.ApiResponseCode;
 import com.example.tackle.dto.JoinRequestDto;
@@ -13,10 +15,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @Slf4j
@@ -24,8 +29,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1")
 @Tag(name = "회원 API", description = "")
 public class MemberController {
+    private final MemberRepository memberRepository;
     private final MemberService memberService;
-
 
 
     @Operation(summary = "Access Token 발급 요청", description = "" +
@@ -42,7 +47,7 @@ public class MemberController {
             @ApiResponse(responseCode = "200", description = "토큰 발급 성공"),
     })
     @PostMapping("/auth/token")
-    public ResultDTO<TokenDto> getAccessToken(@RequestBody long memberIdx) {
+    public ResultDTO<TokenDto> getAccessToken(@RequestBody String memberIdx) {
         try {
             return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "토큰이 갱신 되었습니다.", memberService.createToken(memberIdx));
         } catch (CustomException e) {
@@ -68,10 +73,10 @@ public class MemberController {
     public ResultDTO<TokenDto> login(@RequestBody loginRequestDto loginRequest) {
 
         try {
-            String userId = loginRequest.getUserId();
-            String password = loginRequest.getPassword();
+            String email = loginRequest.getEmail();
+            String memberIdx = loginRequest.getMemberIdx();
 
-            TokenDto tokenDto = memberService.login(userId, password);
+            TokenDto tokenDto = memberService.login(email,  memberIdx);
 
             return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "로그인 성공", tokenDto);
         } catch (CustomException e) {
@@ -92,16 +97,46 @@ public class MemberController {
     })
 
 
-    @PostMapping("/auth/join")
-    public ResultDTO join(
-            @RequestBody JoinRequestDto joinRequestDto) {
-        try {
-            return ResultDTO.of(memberService.join(joinRequestDto), ApiResponseCode.CREATED.getCode(), "회원가입이 완료되었습니다.", null);
-        } catch (CustomException e) {
-            return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
-        }
-    }
+//    @PostMapping("/auth/join")
+//    public ResultDTO join(
+//            @RequestBody JoinRequestDto joinRequestDto) {
+//        try {
+//            return ResultDTO.of(memberService.join(joinRequestDto), ApiResponseCode.CREATED.getCode(), "회원가입이 완료되었습니다.", null);
+//        } catch (CustomException e) {
+//            return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
+//        }
+//    }
 
+    @GetMapping("/auth/kakao/callback")
+    public @ResponseBody JoinRequestDto<Object> kakaoCallback(String code, HttpSession session) throws IOException {
+        System.out.println("code: " + code);
+
+        // 접속토큰 get
+        String kakaoToken = memberService.getReturnAccessToken(code);
+
+        // 접속자 정보 get
+        // id, connected_at , prop
+        Map<String, Object> result = memberService.getUserInfo(kakaoToken);
+        log.info("result:: " + result);
+        String idx = (String) result.get("id");
+        String userName = (String) result.get("nickname");
+        String email = (String) result.get("email");
+
+
+        Optional<Member> member =  memberRepository.findById(idx);
+        if (member.isPresent()){
+            try {
+                TokenDto tokenDto = memberService.login(email, idx);
+
+                return JoinRequestDto.of(true,"기존회원", ApiResponseCode.SUCCESS.getCode(), "로그인 성공", tokenDto);
+            } catch (CustomException e) {
+                return JoinRequestDto.of(false, "에러", e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
+            }
+        } else {
+            return JoinRequestDto.of(memberService.join(email,idx),"신규회원", ApiResponseCode.CREATED.getCode(), "회원가입이 완료되었습니다.", null);
+        }
+
+    }
 
 
 

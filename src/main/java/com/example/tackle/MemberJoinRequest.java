@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Getter
 public class MemberJoinRequest {
-    private String userId;
+    private String email;
     private String userName;
     private String password;
     private String nickname;

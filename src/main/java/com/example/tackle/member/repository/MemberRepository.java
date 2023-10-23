@@ -8,13 +8,13 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
-public interface MemberRepository extends JpaRepository<Member, Long> {
+public interface MemberRepository extends JpaRepository<Member, String> {
 
-    Optional<Member> findByUserId(String userId);
+    Optional<Member> findByEmail(String email);
 
 
     @Modifying
-    @Query(value = "UPDATE member SET refresh_token = :refreshToken WHERE user_id = :userId", nativeQuery = true)
-    void updateRefreshToken(@Param("userId") String userId, @Param("refreshToken") String refreshToken);
+    @Query(value = "UPDATE member SET refresh_token = :refreshToken WHERE email = :email", nativeQuery = true)
+    void updateRefreshToken(@Param("email") String email, @Param("refreshToken") String refreshToken);
 }
 

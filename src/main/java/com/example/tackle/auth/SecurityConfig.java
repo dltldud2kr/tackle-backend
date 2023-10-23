@@ -70,6 +70,7 @@ public class SecurityConfig {
                 .antMatchers("/api/v1/auth/token").permitAll()
                 .antMatchers("/api/v1/auth/join").permitAll()
                 .antMatchers("/api/v1/auth/**").permitAll()
+                .antMatchers("/auth/**").permitAll()
                 .antMatchers(PERMIT_URL_ARRAY).permitAll()
                 .anyRequest().authenticated()
                 .and()

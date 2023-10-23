@@ -74,16 +74,15 @@ public class JwtTokenProvider {
 
 
 //해당 사용자 정보의 리플래쉬 토큰을 업데이트 해줌. 여기서 authentication.getName은 !
-        Optional<Member> byMember = memberRepository.findByUserId(authentication.getName());
+        Optional<Member> byMember = memberRepository.findByEmail(authentication.getName());
 
         log.info(authentication.getName());
         log.info("6");
         log.info(byMember.toString());
-        Optional<Member> optionalMember = memberRepository.findByUserId("dltldud6kr@naver.com");
-        log.info(optionalMember.toString());
+
         if (byMember.isPresent()) {
             log.info("7");
-            memberRepository.updateRefreshToken(byMember.get().getUserId(), refreshToken);
+            memberRepository.updateRefreshToken(byMember.get().getEmail(), refreshToken);
             log.info("8");
         } else {
             // 사용자 정보를 찾지 못한 경우에 대한 처리를 여기에 추가하세요.

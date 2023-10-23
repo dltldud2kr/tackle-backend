@@ -20,15 +20,13 @@ import java.util.stream.Collectors;
 @Setter
 public class Member implements UserDetails {
     @Id
-    @GeneratedValue
-    private Long idx;
+    private String idx;
 
 
-    private String userId;
+    private String email;
     private String refreshToken; //리프레쉬 토큰
     private String userName;
     private String nickname;
-    private String password;
     private LocalDateTime regDt;
     private LocalDateTime udtDt;
 
@@ -47,15 +45,19 @@ public class Member implements UserDetails {
     //authentication.getName()이 이것을 반환함.
     @Override
     public String getUsername() {
-        return userId;
+        return email;
     }
 
-    public String getEmail() {return getEmail();}
+    public String getEmail() {return email;}
 
 
+    // idx 카카오 고유번호  (pk값) 을 password 로 둠.
+    // password로 둔 이유는 스프링 시큐리티 UserDetails객체를 사용하기 때문
+    // 이 객체는 userName과 password를 받아야함.
+    // 우리 프로젝트는 email과 카카오 고유 idx 값만 확인해서 로그인 시키기 때문에 password 대신 idx 를 넣음
     @Override
     public String getPassword() {
-        return password;
+        return idx;
     }
 
     @Override
