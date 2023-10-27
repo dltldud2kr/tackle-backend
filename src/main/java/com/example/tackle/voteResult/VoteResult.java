@@ -1,5 +1,6 @@
 package com.example.tackle.voteResult;
 
+import com.example.tackle._enum.VotingResultStatus;
 import com.example.tackle._enum.VotingStatus;
 import lombok.*;
 
@@ -22,7 +23,7 @@ public class VoteResult {
     private String idx;       // 회원idx
     private Long itemId;
     @Enumerated(EnumType.STRING)
-    private VotingStatus status;  //enum으로 바꿀 수도 있음.
+    private VotingResultStatus status;  // 진행중, 승리, 패배
     private Long bettingPoint;
     private Long getPoint;
     private LocalDateTime createdAt;

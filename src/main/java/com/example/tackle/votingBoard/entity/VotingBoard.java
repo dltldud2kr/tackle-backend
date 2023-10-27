@@ -1,5 +1,6 @@
 package com.example.tackle.votingBoard.entity;
 
+import com.example.tackle._enum.VotingResultStatus;
 import com.example.tackle._enum.VotingStatus;
 import lombok.*;
 
@@ -25,7 +26,8 @@ public class VotingBoard {
     @Enumerated(EnumType.STRING)
     private VotingStatus status;      // 진행중, 종료 enum 타입 고려해볼것
     private String votingImgUrl;
-    private String votingResult;
+    @Enumerated(EnumType.STRING)
+    private VotingResultStatus votingResult;
     private Long totalBetAmount;
     private byte votingDeadLine;
 

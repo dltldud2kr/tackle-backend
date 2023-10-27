@@ -1,6 +1,7 @@
 package com.example.tackle.votingBoard.service;
 
 import com.example.tackle._enum.CustomExceptionCode;
+import com.example.tackle._enum.VotingResultStatus;
 import com.example.tackle._enum.VotingStatus;
 import com.example.tackle.exception.CustomException;
 import com.example.tackle.member.repository.MemberRepository;
@@ -60,12 +61,11 @@ public class VotingBoardServiceImpl implements VotingBoardService {
                     .totalBetAmount(0L)
                     .content(dto.getContent())
                     .createdAt(currentDateTime)
-                    .votingResult(null)
+                    .votingResult(VotingResultStatus.ING)
                     .endDate(endDate)
                     .idx(dto.getIdx())
                     .votingImgUrl(dto.getVotingImgUrl())
                     .title(dto.getTitle())
-                    .votingResult(null)
                     .status(VotingStatus.ING)
                     .votingDeadLine(votingDeadLineDays)
                     .build();
@@ -158,7 +158,7 @@ public class VotingBoardServiceImpl implements VotingBoardService {
                 .bettingPoint(dto.getBettingPoint())
                 .itemId(dto.getItemId())
                 .postId(dto.getPostId())
-                .status(VotingStatus.ING)
+                .status(votingBoard.getVotingResult())
                 .createdAt(LocalDateTime.now())
                 .getPoint(0L)
                 .idx(dto.getIdx())
