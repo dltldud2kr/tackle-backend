@@ -3,6 +3,7 @@ package com.example.tackle.votingBoard.controller;
 import com.example.tackle._enum.ApiResponseCode;
 import com.example.tackle.dto.ResultDTO;
 import com.example.tackle.exception.CustomException;
+import com.example.tackle.voteItems.VoteItemsService;
 import com.example.tackle.votingBoard.VotingBoardDto;
 import com.example.tackle.votingBoard.service.VotingBoardService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,6 +24,7 @@ import java.util.List;
 public class VotingBoardController {
 
     private final VotingBoardService votingBoardService;
+    private final VoteItemsService voteItemsService;
 
 
 
@@ -39,13 +41,16 @@ public class VotingBoardController {
 
     @PostMapping("/create")
     public ResultDTO create(@RequestBody VotingBoardDto dto){
-        try {
-            return ResultDTO.of(votingBoardService.create(dto), ApiResponseCode.SUCCESS.getCode(), "게시글 작성완료.",null);
 
+        try {
+            // 게시글작성, 투표항목 로직 한 번에 처리
+            votingBoardService.create(dto);
+            return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "게시글 작성완료.",null);
         } catch (CustomException e) {
             return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
         }
     }
+
 
     @Operation(summary = "게시글 정보 조회", description = "" +
             "게시글을 조회합니다." +
@@ -59,10 +64,10 @@ public class VotingBoardController {
     })
 
     @GetMapping("/info")
-    public ResultDTO<VotingBoardDto> getBoard(@RequestParam("boardId") long boardId) {
+    public ResultDTO<VotingBoardDto> getBoard(@RequestParam("postId") long postId) {
         try {
-            VotingBoardDto boardInfo = votingBoardService.getBoardInfo(boardId);
-            return ResultDTO.of(boardInfo != null, ApiResponseCode.SUCCESS.getCode(), boardInfo != null ? "성공" : "해당 StoreIdx 정보를 찾을 수 없습니다.",boardInfo);
+            VotingBoardDto boardInfo = votingBoardService.getBoardInfo(postId);
+            return ResultDTO.of(boardInfo != null, ApiResponseCode.SUCCESS.getCode(), boardInfo != null ? "성공" : "해당 PostId 정보를 찾을 수 없습니다.",boardInfo);
 
         } catch (CustomException e) {
             return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);

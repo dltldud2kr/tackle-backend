@@ -26,7 +26,9 @@ public class VotingBoard {
     private String status;      // 진행중, 종료 enum 타입 고려해볼것
     private String votingImgUrl;
     private String votingResult;
-    private Long bettingAmount;
+    private Long totalBetAmount;
+    private byte votingDeadLine;
+
     private LocalDateTime createdAt;
     private LocalDateTime endDate;
 

@@ -112,7 +112,8 @@ public class MemberServiceImpl implements MemberService {
             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(conn.getOutputStream()));
             StringBuilder sb = new StringBuilder();
             sb.append("grant_type=authorization_code");
-            sb.append("&client_id=b22a0873d0ccefbc5f331106fa7b9287");  // REST API 키
+//           sb.append("&client_id=b22a0873d0ccefbc5f331106fa7b9287");  // REST API 키
+            sb.append("&client_id=ccf25614050bf5afb0bf4c82541cebb8");  // REST API 키
             sb.append("&redirect_uri=http://localhost:8080/auth/kakao/callback"); // 앱 CALLBACK 경로
             sb.append("&code=" + code);
             bw.write(sb.toString());
@@ -160,7 +161,7 @@ public class MemberServiceImpl implements MemberService {
             conn.setRequestProperty("Authorization", "Bearer " + access_token);
 
             int responseCode = conn.getResponseCode();
-            System.out.println("responseCode : " + responseCode);
+            log.info("responseCode : " + responseCode);
 
             BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 
@@ -170,7 +171,7 @@ public class MemberServiceImpl implements MemberService {
             while ((br_line = br.readLine()) != null) {
                 result += br_line;
             }
-            System.out.println("response:" + result);
+            log.info("response:" + result);
 
 
             JsonParser parser = new JsonParser();

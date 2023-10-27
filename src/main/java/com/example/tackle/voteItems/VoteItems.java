@@ -18,7 +18,7 @@ public class VoteItems {
     @GeneratedValue
     private Long itemId;
 
-    private String postId;
+    private Long postId;
     private String content;
     private Long voteCount;
 }

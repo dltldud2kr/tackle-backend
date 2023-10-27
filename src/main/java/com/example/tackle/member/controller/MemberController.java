@@ -84,7 +84,7 @@ public class MemberController {
         }
 
     }
-    @Operation(summary = "회원 가입 요청", description = "회원 가입" +
+    @Operation(summary = "카카오 인가코드 발급 및 로그인, 회원가입", description = "로그인 및 회원가입" +
             "임시 회원가입을 요청합니다." +
             "\n### HTTP STATUS 에 따른 조회 결과" +
             "\n- 201: 회원가입 성공 "+
@@ -107,8 +107,11 @@ public class MemberController {
 //        }
 //    }
 
+
+
+
     @GetMapping("/auth/kakao/callback")
-    public @ResponseBody JoinRequestDto<Object> kakaoCallback(String code, HttpSession session) throws IOException {
+    public @ResponseBody JoinRequestDto<Object> kakaoCallback(String code)  {
         System.out.println("code: " + code);
 
         // 접속토큰 get
@@ -128,15 +131,20 @@ public class MemberController {
             try {
                 TokenDto tokenDto = memberService.login(email, idx);
 
-                return JoinRequestDto.of(true,"기존회원", ApiResponseCode.SUCCESS.getCode(), "로그인 성공", tokenDto);
+                return JoinRequestDto.of(true,"기존회원",
+                        ApiResponseCode.SUCCESS.getCode(), "로그인 성공", tokenDto);
             } catch (CustomException e) {
-                return JoinRequestDto.of(false, "에러", e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
+                return JoinRequestDto.of(false, "에러",
+                        e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
             }
         } else {
-            return JoinRequestDto.of(memberService.join(email,idx),"신규회원", ApiResponseCode.CREATED.getCode(), "회원가입이 완료되었습니다.", null);
+            return JoinRequestDto.of(memberService.join(email,idx),"신규회원",
+                    ApiResponseCode.CREATED.getCode(), "회원가입이 완료되었습니다.", null);
         }
 
     }
+
+
 
 
 

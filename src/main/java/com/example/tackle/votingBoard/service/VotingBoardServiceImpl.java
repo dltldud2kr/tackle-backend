@@ -3,6 +3,9 @@ package com.example.tackle.votingBoard.service;
 import com.example.tackle._enum.CustomExceptionCode;
 import com.example.tackle.exception.CustomException;
 import com.example.tackle.member.repository.MemberRepository;
+import com.example.tackle.voteItems.VoteItems;
+import com.example.tackle.voteItems.VoteItemsRepository;
+import com.example.tackle.voteItems.VoteItemsService;
 import com.example.tackle.votingBoard.VotingBoardDto;
 import com.example.tackle.votingBoard.entity.VotingBoard;
 import com.example.tackle.votingBoard.repository.VotingBoardRepository;
@@ -10,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -23,7 +27,10 @@ public class VotingBoardServiceImpl implements VotingBoardService {
     private final VotingBoardRepository votingBoardRepository;
     private final MemberRepository memberRepository;
 
-    @Override
+    private final VoteItemsRepository voteItemsRepository;
+    private final VoteItemsService voteItemsService;
+
+    @Transactional
     public boolean create(VotingBoardDto dto) {
 
         memberRepository.findById(dto.getIdx())
@@ -32,7 +39,7 @@ public class VotingBoardServiceImpl implements VotingBoardService {
 
             VotingBoard votingBoard = VotingBoard.builder()
                     .categoryId(dto.getCategoryId())
-                    .bettingAmount(dto.getBettingAmount())
+                    .totalBetAmount(0L)
                     .content(dto.getContent())
                     .createdAt(LocalDateTime.now())
                     .votingResult(null)
@@ -42,9 +49,15 @@ public class VotingBoardServiceImpl implements VotingBoardService {
                     .title(dto.getTitle())
                     .votingResult(null)
                     .status(null)
+                    .votingDeadLine(dto.getVotingDeadLine())
                     .build();
 
-            votingBoardRepository.save(votingBoard);
+            VotingBoard savedVotingBoard = votingBoardRepository.save(votingBoard);
+            Long savedPostId = savedVotingBoard.getPostId();
+
+            // 투표 항목 로직 (선택지 2개이상 선택)
+            voteItemsService.create(savedPostId,dto);
+
 
 
         return true;
@@ -62,18 +75,18 @@ public class VotingBoardServiceImpl implements VotingBoardService {
     }
 
     @Override
-    public VotingBoardDto getBoardInfo(long boardId) {
+    public VotingBoardDto getBoardInfo(long postId) {
 
 
-        VotingBoard votingBoard = votingBoardRepository.findById(boardId)
+        VotingBoard votingBoard = votingBoardRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND));
 
-        System.out.println("boardId: " + boardId);
+        System.out.println("boardId: " + postId);
         System.out.println(votingBoard.getTitle());
 
         VotingBoardDto dto  = VotingBoardDto.builder()
                 .categoryId(votingBoard.getCategoryId())
-                .bettingAmount(votingBoard.getBettingAmount())
+                .bettingAmount(votingBoard.getTotalBetAmount())
                 .content(votingBoard.getContent())
                 .title(votingBoard.getTitle())
                 .idx(votingBoard.getIdx())
@@ -115,7 +128,7 @@ public class VotingBoardServiceImpl implements VotingBoardService {
                 .idx(votingBoard.getIdx())
                 .endDate(votingBoard.getEndDate())
                 .postId(votingBoard.getPostId())
-                .bettingAmount(votingBoard.getBettingAmount())
+                .bettingAmount(votingBoard.getTotalBetAmount())
                 .createdAt(votingBoard.getCreatedAt())
                 .build();
     }

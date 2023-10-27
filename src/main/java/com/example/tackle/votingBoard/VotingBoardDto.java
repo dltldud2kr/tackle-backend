@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -24,6 +25,8 @@ public class VotingBoardDto {
     private String votingImgUrl;
     private String votingResult;
     private Long bettingAmount;
+    private byte votingDeadLine;
+    private List<String> voteItemsContent;
     private LocalDateTime createdAt;
     private LocalDateTime endDate;
 }
