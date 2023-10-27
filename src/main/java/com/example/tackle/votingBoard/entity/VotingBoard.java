@@ -1,10 +1,9 @@
 package com.example.tackle.votingBoard.entity;
 
+import com.example.tackle._enum.VotingStatus;
 import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
@@ -23,7 +22,8 @@ public class VotingBoard {
     private Long categoryId;
     private String title;
     private String content;
-    private String status;      // 진행중, 종료 enum 타입 고려해볼것
+    @Enumerated(EnumType.STRING)
+    private VotingStatus status;      // 진행중, 종료 enum 타입 고려해볼것
     private String votingImgUrl;
     private String votingResult;
     private Long totalBetAmount;

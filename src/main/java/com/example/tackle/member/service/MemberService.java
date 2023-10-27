@@ -1,9 +1,6 @@
 package com.example.tackle.member.service;
 
-import com.example.tackle.dto.JoinRequestDto;
 import com.example.tackle.dto.TokenDto;
-import com.example.tackle.dto.loginRequestDto;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;

@@ -1,7 +1,7 @@
 package com.example.tackle.service;
 
 
-import com.example.tackle.member.Member;
+import com.example.tackle.member.entity.Member;
 import com.example.tackle.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.User;

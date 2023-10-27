@@ -3,8 +3,9 @@ package com.example.tackle.votingBoard.controller;
 import com.example.tackle._enum.ApiResponseCode;
 import com.example.tackle.dto.ResultDTO;
 import com.example.tackle.exception.CustomException;
-import com.example.tackle.voteItems.VoteItemsService;
-import com.example.tackle.votingBoard.VotingBoardDto;
+import com.example.tackle.voteItems.service.VoteItemsService;
+import com.example.tackle.voteResult.VoteResultDto;
+import com.example.tackle.votingBoard.dto.VotingBoardDto;
 import com.example.tackle.votingBoard.service.VotingBoardService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -64,7 +65,7 @@ public class VotingBoardController {
     })
 
     @GetMapping("/info")
-    public ResultDTO<VotingBoardDto> getBoard(@RequestParam("postId") long postId) {
+    public ResultDTO<VotingBoardDto> getBoard(@RequestParam("postId") Long postId) {
         try {
             VotingBoardDto boardInfo = votingBoardService.getBoardInfo(postId);
             return ResultDTO.of(boardInfo != null, ApiResponseCode.SUCCESS.getCode(), boardInfo != null ? "성공" : "해당 PostId 정보를 찾을 수 없습니다.",boardInfo);
@@ -93,5 +94,15 @@ public class VotingBoardController {
         return list;
     }
 
+    //진행중
+    @PostMapping("/voting")
+    public ResultDTO  voting( @RequestBody VoteResultDto dto){
+
+        try {
+            return ResultDTO.of(votingBoardService.voting(dto), ApiResponseCode.SUCCESS.getCode(), "투표 성공", null);
+        } catch (CustomException e) {
+            return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
+        }
+    }
 
 }

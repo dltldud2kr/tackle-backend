@@ -1,4 +1,4 @@
-package com.example.tackle.votingBoard;
+package com.example.tackle.votingBoard.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

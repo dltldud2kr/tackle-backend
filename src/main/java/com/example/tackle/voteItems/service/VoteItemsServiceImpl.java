@@ -1,9 +1,11 @@
-package com.example.tackle.voteItems;
+package com.example.tackle.voteItems.service;
 
 
 import com.example.tackle._enum.CustomExceptionCode;
 import com.example.tackle.exception.CustomException;
-import com.example.tackle.votingBoard.VotingBoardDto;
+import com.example.tackle.voteItems.entity.VoteItems;
+import com.example.tackle.voteItems.repository.VoteItemsRepository;
+import com.example.tackle.votingBoard.dto.VotingBoardDto;
 import com.example.tackle.votingBoard.repository.VotingBoardRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +17,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class VoteItemsServiceImpl implements VoteItemsService{
+public class VoteItemsServiceImpl implements VoteItemsService {
     private final VoteItemsRepository voteItemsRepository;
 
     private final VotingBoardRepository votingBoardRepository;

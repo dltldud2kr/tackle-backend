@@ -1,4 +1,4 @@
-package com.example.tackle.voteItems;
+package com.example.tackle.voteItems.entity;
 
 import lombok.*;
 

@@ -1,4 +1,4 @@
-package com.example.tackle.dto;
+package com.example.tackle.member.dto;
 
 
 import lombok.Data;

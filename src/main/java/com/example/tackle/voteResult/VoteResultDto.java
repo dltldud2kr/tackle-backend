@@ -1,30 +1,23 @@
 package com.example.tackle.voteResult;
 
 import com.example.tackle._enum.VotingStatus;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
 import java.time.LocalDateTime;
-
-@Entity
 @AllArgsConstructor
 @NoArgsConstructor
+@Data
 @Builder
-@Getter
-@Setter
-public class VoteResult {
-
-    @Id
-    @GeneratedValue
-    private Long resultId;
+public class VoteResultDto {
 
     private Long postId;
     private String idx;       // 회원idx
     private Long itemId;
-    @Enumerated(EnumType.STRING)
-    private VotingStatus status;  //enum으로 바꿀 수도 있음.
+    private VotingStatus status;
     private Long bettingPoint;
     private Long getPoint;
     private LocalDateTime createdAt;
-
 }

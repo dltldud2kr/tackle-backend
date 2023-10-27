@@ -1,25 +1,21 @@
 package com.example.tackle.member.controller;
 
-import com.example.tackle.member.Member;
-import com.example.tackle.member.repository.MemberRepository;
-import com.example.tackle.member.service.MemberService;
 import com.example.tackle._enum.ApiResponseCode;
-import com.example.tackle.dto.JoinRequestDto;
 import com.example.tackle.dto.ResultDTO;
 import com.example.tackle.dto.TokenDto;
-import com.example.tackle.dto.loginRequestDto;
 import com.example.tackle.exception.CustomException;
+import com.example.tackle.member.entity.Member;
+import com.example.tackle.member.dto.JoinRequestDto;
+import com.example.tackle.member.repository.MemberRepository;
+import com.example.tackle.member.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpSession;
-import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
 
@@ -57,33 +53,33 @@ public class MemberController {
     }
 
 
-    @Operation(summary = "로그인 요청", description = "" +
-            "회원 로그인을 요청하고 토큰을 발급합니다." +
-            "\n### HTTP STATUS 에 따른 요청 결과" +
-            "\n- 200: 서버요청 정상 성공" +
-            "\n- 403: 회원정보 인증 실패" +
-            "\n- 500: 서버에서 요청 처리중 문제가 발생했습니다." +
-            "\n### Result Code 에 따른 요청 결과" +
-            "\n- SUCCESS: 로그인 성공 및 정상 토큰 발급" +
-            "\n- NOT_FOUND_EMAIL: 요청한 이메일 가입자가 존재하지 않음")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "로그인 성공"),
-    })
-    @PostMapping("/auth/login")
-    public ResultDTO<TokenDto> login(@RequestBody loginRequestDto loginRequest) {
-
-        try {
-            String email = loginRequest.getEmail();
-            String memberIdx = loginRequest.getMemberIdx();
-
-            TokenDto tokenDto = memberService.login(email,  memberIdx);
-
-            return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "로그인 성공", tokenDto);
-        } catch (CustomException e) {
-            return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
-        }
-
-    }
+//    @Operation(summary = "로그인 요청", description = "" +
+//            "회원 로그인을 요청하고 토큰을 발급합니다." +
+//            "\n### HTTP STATUS 에 따른 요청 결과" +
+//            "\n- 200: 서버요청 정상 성공" +
+//            "\n- 403: 회원정보 인증 실패" +
+//            "\n- 500: 서버에서 요청 처리중 문제가 발생했습니다." +
+//            "\n### Result Code 에 따른 요청 결과" +
+//            "\n- SUCCESS: 로그인 성공 및 정상 토큰 발급" +
+//            "\n- NOT_FOUND_EMAIL: 요청한 이메일 가입자가 존재하지 않음")
+//    @ApiResponses({
+//            @ApiResponse(responseCode = "200", description = "로그인 성공"),
+//    })
+//    @PostMapping("/auth/login")
+//    public ResultDTO<TokenDto> login(@RequestBody loginRequestDto loginRequest) {
+//
+//        try {
+//            String email = loginRequest.getEmail();
+//            String memberIdx = loginRequest.getMemberIdx();
+//
+//            TokenDto tokenDto = memberService.login(email,  memberIdx);
+//
+//            return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "로그인 성공", tokenDto);
+//        } catch (CustomException e) {
+//            return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
+//        }
+//
+//    }
     @Operation(summary = "카카오 인가코드 발급 및 로그인, 회원가입", description = "로그인 및 회원가입" +
             "임시 회원가입을 요청합니다." +
             "\n### HTTP STATUS 에 따른 조회 결과" +
@@ -95,19 +91,6 @@ public class MemberController {
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "OK"),
     })
-
-
-//    @PostMapping("/auth/join")
-//    public ResultDTO join(
-//            @RequestBody JoinRequestDto joinRequestDto) {
-//        try {
-//            return ResultDTO.of(memberService.join(joinRequestDto), ApiResponseCode.CREATED.getCode(), "회원가입이 완료되었습니다.", null);
-//        } catch (CustomException e) {
-//            return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
-//        }
-//    }
-
-
 
 
     @GetMapping("/auth/kakao/callback")

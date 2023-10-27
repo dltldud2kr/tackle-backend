@@ -1,6 +1,8 @@
 package com.example.tackle.votingBoard.service;
 
-import com.example.tackle.votingBoard.VotingBoardDto;
+import com.example.tackle.voteResult.VoteResult;
+import com.example.tackle.voteResult.VoteResultDto;
+import com.example.tackle.votingBoard.dto.VotingBoardDto;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,5 +29,9 @@ public interface VotingBoardService {
      * @param boardId
      * @return
      */
-    VotingBoardDto getBoardInfo(long boardId);
+    VotingBoardDto getBoardInfo(Long boardId);
+
+    boolean voting(VoteResultDto dto);
+
+
 }
