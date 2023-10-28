@@ -100,7 +100,11 @@ public class VotingBoardController {
             "\n- 200: 서버요청 정상 성공 "+
             "\n- 500: 서버에서 요청 처리중 문제가 발생" +
             "\n### Result Code 에 따른 요청 결과" +
-            "\n- ")
+            "\n- NOT_ENOUGH_ITEMS\": \"선택지 항목이 2개 이상이어야 합니다." +
+            "\n- INVALID_DEADLINE\": \"기한은 1~7일 사이로 설정해야합니다." +
+            "\n- EXPIRED_VOTE\": \"투표기간이 만료되었습니다."+
+            "\n- ALREADY_VOTED\": \"이미 투표를 완료했습니다."
+            )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "게시글 투표 성공"),
     })

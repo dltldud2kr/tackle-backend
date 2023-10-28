@@ -1,5 +1,6 @@
 package com.example.tackle.member.entity;
 
+import com.example.tackle._enum.MemberRoles;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -27,6 +28,8 @@ public class Member implements UserDetails {
     private String refreshToken; //리프레쉬 토큰
     private String userName;
     private String nickname;
+    @Enumerated(EnumType.STRING)
+    private MemberRoles role;
     private LocalDateTime regDt;
     private LocalDateTime udtDt;
 
