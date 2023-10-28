@@ -117,6 +117,7 @@ public class VotingBoardController {
         } catch (CustomException e) {
             return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
         }
+        //test
     }
 
 }
