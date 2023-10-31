@@ -13,4 +13,7 @@ public interface VotingBoardRepository extends JpaRepository<VotingBoard, Long> 
 
     @Query("SELECT vb FROM VotingBoard vb WHERE vb.endDate <= :currentDateTime")
     List<VotingBoard> findExpiredVotingBoards(LocalDateTime currentDateTime);
+
+
+
 }

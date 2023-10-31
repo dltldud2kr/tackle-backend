@@ -134,6 +134,7 @@ public class VotingBoardServiceImpl implements VotingBoardService {
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND));
 
         Long postId = voteItems.getPostId();
+        System.out.println("VoteItems.getPostId = " + postId);
 
         // 해당 투표 게시글 존재여부 확인
         VotingBoard votingBoard = votingBoardRepository.findById(postId)

@@ -10,4 +10,9 @@ public interface VoteResultService {
      */
     boolean register(Long itemId);
 
+    /**
+     * 투표 참여 정보 조회
+     */
+    boolean info(Long resultId, String memberIdx);
+
 }
