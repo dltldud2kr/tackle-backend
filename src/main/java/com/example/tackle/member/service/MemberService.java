@@ -11,7 +11,7 @@ public interface MemberService {
     /**
      * 회원 등록
      */
-    boolean join(String email, String memberIdx);
+    TokenDto join(String email, String memberIdx);
 
 
     TokenDto login(String email, String password);

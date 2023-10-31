@@ -134,7 +134,6 @@ public class VotingBoardServiceImpl implements VotingBoardService {
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND));
 
         Long postId = voteItems.getPostId();
-        System.out.println("VoteItems.getPostId = " + postId);
 
         // 해당 투표 게시글 존재여부 확인
         VotingBoard votingBoard = votingBoardRepository.findById(postId)
@@ -156,7 +155,7 @@ public class VotingBoardServiceImpl implements VotingBoardService {
         }
 
         VoteResult voteResult = VoteResult.builder()
-                .bettingPoint(dto.getBettingPoint())
+                .bettingPoint(dto.getBettingPoint())    // 10000, 50000 , 100000 제한  Exception 필요
                 .itemId(dto.getItemId())
                 .postId(dto.getPostId())
                 .status(votingBoard.getVotingResult())

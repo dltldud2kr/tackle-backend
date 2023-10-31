@@ -182,10 +182,15 @@ public class MemberServiceImpl implements MemberService {
             String id = element.getAsJsonObject().get("id").getAsString();
             String nickname = properties.getAsJsonObject().get("nickname").getAsString();
             String email = kakao_account.getAsJsonObject().get("email").getAsString();
+            // 프로필 이미지 정보 반환
+            String profileImage = properties.getAsJsonObject().get("profile_image").getAsString();
+
             log.warn("email:: " + email);
             resultMap.put("nickname", nickname);
             resultMap.put("id", id);
             resultMap.put("email", email);
+            // Map에 프로필 이미지 정보를 추가합니다.
+            resultMap.put("profile_image", profileImage);
 
         } catch (IOException e) {
             // TODO Auto-generated catch block
@@ -194,8 +199,9 @@ public class MemberServiceImpl implements MemberService {
         return resultMap;
     }
 
+    @Transactional
     @Override
-    public boolean join(String email, String memberIdx) {
+    public TokenDto join(String email, String memberIdx) {
         try {
             //해당 이메일이 존재하는지 확인.
             Optional<Member> optionalMember =  memberRepository.findById(email);
@@ -210,10 +216,45 @@ public class MemberServiceImpl implements MemberService {
                     .regDt(LocalDateTime.now())
                     .build();
             memberRepository.save(member);
-            return true;
+
+
+
+//
+//            log.info("findByUser before");
+//            Optional<Member> optionalMember =  memberRepository.findById(memberIdx);
+//            String email1 = optionalMember.get().getEmail();
+//            System.out.println("email = " + email);
+//            System.out.println("email1 = " + email1);
+//            if(email.equals(email1)){
+//                System.out.println("동일한 값");
+//            } else {
+//                System.out.println("동일하지않은값");
+//            }
+//
+////
+//            memberRepository.findById(memberIdx)
+//                    .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND_EMAIL));
+//            log.info("UsernamePasswordAuthenticationToken before");
+            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, memberIdx);
+
+
+            Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+            log.info("authentication after");
+
+            //이게 문제.
+            TokenDto tokenDto = jwtTokenProvider.generateToken(authentication);
+            log.info(tokenDto.getAccessToken());
+            if (tokenDto.getAccessToken().isEmpty()){
+                log.info(tokenDto.getAccessToken());
+                log.info("token empty");
+            }
+            log.info("generateToken after");
+            return tokenDto;
+
+
+
         } catch (DataAccessException e) {
-            System.err.println("DataAccessException : " + e);
-            return false;
+            throw new RuntimeException(e.getMessage());
         }
     }
 

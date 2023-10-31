@@ -107,6 +107,7 @@ public class MemberController {
         String idx = (String) result.get("id");
         String userName = (String) result.get("nickname");
         String email = (String) result.get("email");
+        String profileImage = (String) result.get("profileImage");
 
 
         Optional<Member> member =  memberRepository.findById(idx);
@@ -114,17 +115,23 @@ public class MemberController {
             try {
                 TokenDto tokenDto = memberService.login(email, idx);
 
-                return JoinRequestDto.of(true,"기존회원",
-                        ApiResponseCode.SUCCESS.getCode(), "로그인 성공", tokenDto);
+                JoinRequestDto<Object> response = JoinRequestDto.of(true,"기존회원",
+                        ApiResponseCode.SUCCESS.getCode(), "로그인 성공했음.", tokenDto);
+                response.setUserInfo(result);  // 사용자 정보를 설정합니다.
+                return response;
             } catch (CustomException e) {
-                return JoinRequestDto.of(false, "에러",
+                JoinRequestDto<Object> response = JoinRequestDto.of(false, "에러",
                         e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
+                response.setUserInfo(result);  // 사용자 정보를 설정합니다.
+                return response;
             }
         } else {
-            return JoinRequestDto.of(memberService.join(email,idx),"신규회원",
-                    ApiResponseCode.CREATED.getCode(), "회원가입이 완료되었습니다.", null);
+            TokenDto tokenDto = memberService.join(email,idx);
+            JoinRequestDto<Object> response = JoinRequestDto.of(true,"신규회원",
+                    ApiResponseCode.CREATED.getCode(), "회원가입이 완료되었습니다.", tokenDto);
+            response.setUserInfo(result);  // 사용자 정보를 설정합니다.
+            return response;
         }
-
     }
 
 
