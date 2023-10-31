@@ -2,6 +2,8 @@ package com.example.tackle.voteResult;
 
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public interface VoteResultService {
     /**
@@ -13,6 +15,8 @@ public interface VoteResultService {
     /**
      * 투표 참여 정보 조회
      */
-    boolean info(Long resultId, String memberIdx);
+    boolean list2(Long resultId, String email);
+
+    List<VoteResult> list(String email);
 
 }

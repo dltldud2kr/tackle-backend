@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -23,13 +24,11 @@ public class VoteResultController {
     @GetMapping("/info")
     public ResultDTO voteResultInfo(@RequestParam("resultId") Long resultId , Principal principal) {
 
-        System.out.println("resultId = " + resultId);
         String memberEmail = principal.getName(); // 사용자 id값
 
-        System.out.println("memberIdx = " + memberEmail);
-
+        List<VoteResult> list = voteResultService.list(memberEmail);
         try{
-            return ResultDTO.of(voteResultService.info(resultId, memberEmail), ApiResponseCode.SUCCESS.getCode(), "조회 성공", null);
+            return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "조회 성공", list);
         }catch (CustomException e){
             return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
         }
