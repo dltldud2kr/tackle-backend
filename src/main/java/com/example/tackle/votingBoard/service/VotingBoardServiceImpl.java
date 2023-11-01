@@ -96,8 +96,7 @@ public class VotingBoardServiceImpl implements VotingBoardService {
     @Override
     public VotingBoardResponseDto getBoardInfo(Long postId, String id) {
 
-        System.out.println("postId = " + postId);
-        System.out.println("id = " + id);
+
         boolean isVoting = false;
 
         VotingBoard votingBoard = votingBoardRepository.findById(postId)
@@ -110,13 +109,11 @@ public class VotingBoardServiceImpl implements VotingBoardService {
             throw new CustomException(CustomExceptionCode.NOT_FOUND_ITEMS);
         }
 
-        System.out.println("Test");
         Optional<VoteResult> voteResult = voteResultRepository.findByPostIdAndIdx(postId, id);
         if (voteResult.isPresent()){
             isVoting = true;
         }
 
-        System.out.println("isVoting : " + isVoting);
         //해당 게시글의 투표항목리스트를 가져옴
         List<Long> itemIds = new ArrayList<>();
         List<String> itemContents = new ArrayList<>();
@@ -128,8 +125,7 @@ public class VotingBoardServiceImpl implements VotingBoardService {
         //투표 기한이 지났는지 확인
         updateVotingStatusIfNeeded(votingBoard);
 
-        System.out.println("boardId: " + postId);
-        System.out.println(votingBoard.getTitle());
+
 
         VotingBoardResponseDto dto  = VotingBoardResponseDto.builder()
                 .categoryId(votingBoard.getCategoryId())
