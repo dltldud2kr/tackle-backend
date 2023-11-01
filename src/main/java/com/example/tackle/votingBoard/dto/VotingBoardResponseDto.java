@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -29,10 +30,11 @@ public class VotingBoardResponseDto {
     private Long bettingAmount;
     private byte votingDeadLine;
     private List<String> voteItemsContent;
-    private List<Long> voteItemsId;
+//    private List<Long> voteItemsId;
     private LocalDateTime createdAt;
     private LocalDateTime endDate;
     private boolean isVoting;
+    private Map<Long, Long> voteItemIdMap;
 
 
 }

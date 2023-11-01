@@ -22,9 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -99,6 +97,8 @@ public class VotingBoardServiceImpl implements VotingBoardService {
 
         boolean isVoting = false;
 
+        Map<Long, Long> voteItemIdMap = new HashMap<>();
+
         VotingBoard votingBoard = votingBoardRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND));
 
@@ -114,12 +114,17 @@ public class VotingBoardServiceImpl implements VotingBoardService {
             isVoting = true;
         }
 
+
         //해당 게시글의 투표항목리스트를 가져옴
-        List<Long> itemIds = new ArrayList<>();
+//        List<Long> itemIds = new ArrayList<>();
         List<String> itemContents = new ArrayList<>();
 
         for (VoteItems voteItem : voteItemsList) {
-            itemIds.add(voteItem.getItemId());
+            Long itemId = voteItem.getItemId();
+            Long itemCount = voteItem.getVoteCount();
+            //투표항목 id 값과 투표 count 값을 Map 으로 저장.
+            voteItemIdMap.put(itemId, itemCount);
+//            itemIds.add(voteItem.getItemId());
             itemContents.add(voteItem.getContent());
         }
         //투표 기한이 지났는지 확인
@@ -134,7 +139,8 @@ public class VotingBoardServiceImpl implements VotingBoardService {
                 .title(votingBoard.getTitle())
                 .idx(votingBoard.getIdx())
                 .createdAt(votingBoard.getCreatedAt())
-                .voteItemsId(itemIds)
+                .voteItemIdMap(voteItemIdMap)
+//                .voteItemsId(itemIds)
                 .voteItemsContent(itemContents)
                 .endDate(votingBoard.getEndDate())
                 .postId(votingBoard.getPostId())
