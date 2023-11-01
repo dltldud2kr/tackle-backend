@@ -8,10 +8,11 @@ import com.example.tackle.member.repository.MemberRepository;
 import com.example.tackle.voteItems.entity.VoteItems;
 import com.example.tackle.voteItems.repository.VoteItemsRepository;
 import com.example.tackle.voteItems.service.VoteItemsService;
-import com.example.tackle.voteResult.VoteResult;
-import com.example.tackle.voteResult.VoteResultDto;
-import com.example.tackle.voteResult.VoteResultRepository;
+import com.example.tackle.voteResult.entity.VoteResult;
+import com.example.tackle.voteResult.dto.VoteResultDto;
+import com.example.tackle.voteResult.repository.VoteResultRepository;
 import com.example.tackle.votingBoard.dto.VotingBoardDto;
+import com.example.tackle.votingBoard.dto.VotingBoardResponseDto;
 import com.example.tackle.votingBoard.entity.VotingBoard;
 import com.example.tackle.votingBoard.repository.VotingBoardRepository;
 import lombok.RequiredArgsConstructor;
@@ -93,29 +94,57 @@ public class VotingBoardServiceImpl implements VotingBoardService {
     }
 
     @Override
-    public VotingBoardDto getBoardInfo(Long postId) {
+    public VotingBoardResponseDto getBoardInfo(Long postId, String id) {
 
+        System.out.println("postId = " + postId);
+        System.out.println("id = " + id);
+        boolean isVoting = false;
 
         VotingBoard votingBoard = votingBoardRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND));
 
+        List<VoteItems> voteItemsList = voteItemsRepository.findByPostId(postId);
+
+        //투표항목이 없는 게시글 예외처리
+        if(voteItemsList.isEmpty()){
+            throw new CustomException(CustomExceptionCode.NOT_FOUND_ITEMS);
+        }
+
+        System.out.println("Test");
+        Optional<VoteResult> voteResult = voteResultRepository.findByPostIdAndIdx(postId, id);
+        if (voteResult.isPresent()){
+            isVoting = true;
+        }
+
+        System.out.println("isVoting : " + isVoting);
+        //해당 게시글의 투표항목리스트를 가져옴
+        List<Long> itemIds = new ArrayList<>();
+        List<String> itemContents = new ArrayList<>();
+
+        for (VoteItems voteItem : voteItemsList) {
+            itemIds.add(voteItem.getItemId());
+            itemContents.add(voteItem.getContent());
+        }
         //투표 기한이 지났는지 확인
         updateVotingStatusIfNeeded(votingBoard);
 
         System.out.println("boardId: " + postId);
         System.out.println(votingBoard.getTitle());
 
-        VotingBoardDto dto  = VotingBoardDto.builder()
+        VotingBoardResponseDto dto  = VotingBoardResponseDto.builder()
                 .categoryId(votingBoard.getCategoryId())
                 .bettingAmount(votingBoard.getTotalBetAmount())
                 .content(votingBoard.getContent())
                 .title(votingBoard.getTitle())
                 .idx(votingBoard.getIdx())
                 .createdAt(votingBoard.getCreatedAt())
+                .voteItemsId(itemIds)
+                .voteItemsContent(itemContents)
                 .endDate(votingBoard.getEndDate())
                 .postId(votingBoard.getPostId())
                 .votingResult(votingBoard.getVotingResult())
                 .status(votingBoard.getStatus().toString())
+                .isVoting(isVoting)
                 .votingImgUrl(votingBoard.getVotingImgUrl())
                 .build();
 

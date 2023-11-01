@@ -1,4 +1,4 @@
-package com.example.tackle.service;
+package com.example.tackle.member.service;
 
 
 import com.example.tackle.member.entity.Member;

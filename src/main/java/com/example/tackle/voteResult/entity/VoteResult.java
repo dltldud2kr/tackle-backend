@@ -1,24 +1,31 @@
-package com.example.tackle.voteResult;
+package com.example.tackle.voteResult.entity;
 
 import com.example.tackle._enum.VotingResultStatus;
 import com.example.tackle._enum.VotingStatus;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+import javax.persistence.*;
 import java.time.LocalDateTime;
+
+@Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
 @Builder
-public class VoteResultDto {
+@Getter
+@Setter
+public class VoteResult {
+
+    @Id
+    @GeneratedValue
+    private Long resultId;
 
     private Long postId;
     private String idx;       // 회원idx
     private Long itemId;
-    private VotingResultStatus status;
+    @Enumerated(EnumType.STRING)
+    private VotingResultStatus status;  // 진행중, 승리, 패배
     private Long bettingPoint;
     private Long getPoint;
     private LocalDateTime createdAt;
+
 }

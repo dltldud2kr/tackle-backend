@@ -4,9 +4,11 @@ import com.example.tackle._enum.ApiResponseCode;
 import com.example.tackle.dto.ResultDTO;
 import com.example.tackle.exception.CustomException;
 import com.example.tackle.voteItems.service.VoteItemsService;
-import com.example.tackle.voteResult.VoteResultDto;
+import com.example.tackle.voteResult.dto.VoteResultDto;
 import com.example.tackle.votingBoard.dto.VotingBoardDto;
+import com.example.tackle.votingBoard.dto.VotingBoardResponseDto;
 import com.example.tackle.votingBoard.service.VotingBoardService;
+import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -65,9 +67,10 @@ public class VotingBoardController {
     })
 
     @GetMapping("/info")
-    public ResultDTO<VotingBoardDto> getBoard(@RequestParam("postId") Long postId) {
+    public ResultDTO<VotingBoardResponseDto> getBoard(@RequestParam("postId") Long postId , @RequestBody JsonNode requestBody) {
+        String id = requestBody.get("id").asText();
         try {
-            VotingBoardDto boardInfo = votingBoardService.getBoardInfo(postId);
+            VotingBoardResponseDto boardInfo = votingBoardService.getBoardInfo(postId, id);
             return ResultDTO.of(boardInfo != null, ApiResponseCode.SUCCESS.getCode(), boardInfo != null ? "성공" : "해당 PostId 정보를 찾을 수 없습니다.",boardInfo);
 
         } catch (CustomException e) {

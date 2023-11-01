@@ -1,4 +1,4 @@
-package com.example.tackle.voteResult;
+package com.example.tackle.voteResult.service;
 
 import com.example.tackle._enum.CustomExceptionCode;
 import com.example.tackle._enum.VotingResultStatus;
@@ -7,6 +7,8 @@ import com.example.tackle.exception.CustomException;
 import com.example.tackle.member.repository.MemberRepository;
 import com.example.tackle.voteItems.entity.VoteItems;
 import com.example.tackle.voteItems.repository.VoteItemsRepository;
+import com.example.tackle.voteResult.entity.VoteResult;
+import com.example.tackle.voteResult.repository.VoteResultRepository;
 import com.example.tackle.votingBoard.entity.VotingBoard;
 import com.example.tackle.votingBoard.repository.VotingBoardRepository;
 import lombok.RequiredArgsConstructor;
@@ -41,14 +43,11 @@ public class VoteResultServiceImpl implements VoteResultService {
         return false;
     }
 
-    @Override
-    public boolean list2(Long resultId, String email) {
-        return false;
-    }
+
 
     @Override
-    public List<VoteResult> list(String email) {
-        String memberIdx = memberRepository.findByEmail(email).get().getIdx();
+    public List<VoteResult> list(String memberIdx) {
+//        String memberIdx = memberRepository.findByEmail(email).get().getIdx();
 
         List<VoteResult> voteResultList = voteResultRepository.findAllByIdx(memberIdx);
 
@@ -76,6 +75,7 @@ public class VoteResultServiceImpl implements VoteResultService {
                 Long minCount = voteItems3.get(0).getVoteCount();
                 List<VoteItems> minCountItems = new ArrayList<>();
 
+                // 투표가 동률일 때
                 for (VoteItems item : voteItems3) {
                     if (item.getVoteCount() == minCount) {
                         minCountItems.add(item);
@@ -106,88 +106,21 @@ public class VoteResultServiceImpl implements VoteResultService {
                     }
                 } else {
                     // 동일한 카운트가 있는 경우 다른 처리를 수행하거나 필요한 로직을 추가
-                    // minCountItems에는 동일한 카운트를 가진 항목들이 포함됩니다.
-                    // 다른 처리를 수행하는 로직을 여기에 추가하세요.
+                    // minCountItems에는 동일한 카운트를 가진 항목들이 포함됨.
+                    // 다른 처리를 수행하는 로직을 여기에 추가.
+                    voteResult.setStatus(VotingResultStatus.DRAW);
                 }
             } else {
-                throw new CustomException(CustomExceptionCode.NOT_FOUND,"선택지가 없습니다.");
+                throw new CustomException(CustomExceptionCode.NOT_FOUND,"투표항목이 없습니다.");
             }
-
+        }
+            voteResultRepository.save(voteResult);
 
         }
-
-        voteResultRepository.save(voteResult);
-
-
-        }
-
 
         return voteResultList;
     }
 
-
-//    @Override
-//    public boolean list(Long resultId, String memberEmail) {
-//
-//        String memberIdx = memberRepository.findByEmail(memberEmail).get().getIdx();
-//
-//        List<VoteResult> voteResultList = voteResultRepository.findAllByIdx(memberIdx);
-//
-//        for (VoteResult x : voteResultList){
-//            System.out.println("idx : " +x.getIdx());
-//            System.out.println("itemId : " +x.getItemId());
-//            System.out.println("postId : " +x.getPostId());
-//            System.out.println("===============");
-//        }
-//
-//        VoteResult voteResult = voteResultRepository.findByResultIdAndIdx(resultId, memberIdx)
-//                .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND));
-//
-//        Long postId = voteResult.getPostId();
-//
-//        VotingBoard votingBoard = votingBoardRepository.findById(postId)
-//                .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND));
-//
-//        boolean result = updateVotingStatusIfNeeded(votingBoard);
-//
-//
-//        // 게시글의 투표항목에서 투표수를 비교해 높은 투표항목를 가져옴
-//        // 높은 투표항목과 내 투표항목을 비교해 결과 출력
-//        if (result == false){
-//
-//
-//            List<VoteItems> voteItems3 = voteItemsRepository.findByPostIdOrderByVoteCountDesc(postId);
-//
-//            // 투표가 동률일 경우 무승부
-//            if (voteItems3.size() >= 2){
-//                System.out.println("draw");
-//
-//                voteResult.setStatus(VotingResultStatus.DRAW);
-//                voteResultRepository.save(voteResult);
-//
-//                return true;
-//
-//            }
-//
-//            VoteItems voteItems2 = voteItems3.get(0);
-//
-//            Long result1 = voteItems2.getItemId();
-//            Long result2 = voteResult.getItemId();
-//
-//            if (result1.equals(result2)){
-//                voteResult.setStatus(VotingResultStatus.WIN);
-//                System.out.println("win");
-//            } else {
-//                voteResult.setStatus(VotingResultStatus.LOSE);
-//                System.out.println("lose");
-//            }
-//
-//        }
-//        voteResultRepository.save(voteResult);
-//
-//
-//        return true;
-//    }
 
 
 

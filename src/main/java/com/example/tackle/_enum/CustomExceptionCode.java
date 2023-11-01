@@ -10,7 +10,8 @@ public enum CustomExceptionCode {
 
     INVALID_DEADLINE("INVALID_DEADLINE", "기한은 1~7일 사이로 설정해야합니다."),
     EXPIRED_VOTE("EXPIRED_VOTE","투표기간이 만료되었습니다."),
-    ALREADY_VOTED("ALREADY_VOTED", "이미 투표를 완료했습니다");
+    ALREADY_VOTED("ALREADY_VOTED", "이미 투표를 완료했습니다"),
+    NOT_FOUND_ITEMS("NOT_FOUND_ITEMS", "투표항목이 없는 게시글입니다.");
     // 추후에 추가될 다른 업로드 타입들
 
     private final String statusCode;
