@@ -23,7 +23,6 @@ import java.util.Optional;
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
-//testestest
 @Tag(name = "회원 API", description = "")
 public class MemberController {
     private final MemberRepository memberRepository;
