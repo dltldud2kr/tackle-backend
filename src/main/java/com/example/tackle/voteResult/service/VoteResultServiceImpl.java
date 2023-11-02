@@ -29,25 +29,10 @@ public class VoteResultServiceImpl implements VoteResultService {
     private final VotingBoardRepository votingBoardRepository;
 
 
-    @Override
-    public boolean register(Long itemId) {
-        VoteItems voteItems = voteItemsRepository.findById(itemId)
-                .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND));
-
-//        VoteResult voteResult = VoteResult.builder()
-//                .createdAt(LocalDateTime.now())
-//                .bettingPoint()
-//                .build();
-
-
-        return false;
-    }
-
 
 
     @Override
     public List<VoteResult> list(String memberIdx) {
-//        String memberIdx = memberRepository.findByEmail(email).get().getIdx();
 
         List<VoteResult> voteResultList = voteResultRepository.findAllByIdx(memberIdx);
 

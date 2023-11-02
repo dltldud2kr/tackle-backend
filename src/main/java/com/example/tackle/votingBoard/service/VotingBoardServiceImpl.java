@@ -17,6 +17,7 @@ import com.example.tackle.votingBoard.entity.VotingBoard;
 import com.example.tackle.votingBoard.repository.VotingBoardRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -92,10 +93,12 @@ public class VotingBoardServiceImpl implements VotingBoardService {
     }
 
     @Override
-    public VotingBoardResponseDto getBoardInfo(Long postId, String id) {
+    public VotingBoardResponseDto getBoardInfo(Long postId, String email) {
+
 
 
         boolean isVoting = false;
+        String id = memberRepository.findByEmail(email).get().getIdx();
 
         Map<Long, Long> voteItemIdMap = new HashMap<>();
 
@@ -109,6 +112,8 @@ public class VotingBoardServiceImpl implements VotingBoardService {
             throw new CustomException(CustomExceptionCode.NOT_FOUND_ITEMS);
         }
 
+        //로그인이 된 회원의 경우 투표를 한 게시글이면 isVoting 을 true로 반환해줌으로써
+        // 투표화면이 아닌 투표비율이 뜨는 투표결과화면을 보여주게함.
         Optional<VoteResult> voteResult = voteResultRepository.findByPostIdAndIdx(postId, id);
         if (voteResult.isPresent()){
             isVoting = true;
@@ -185,6 +190,15 @@ public class VotingBoardServiceImpl implements VotingBoardService {
             throw new CustomException(CustomExceptionCode.EXPIRED_VOTE);
         }
 
+        // 투표시 베팅한 금액 체크 10000, 50000, 100000 제한
+        boolean bettingValid = isBettingAmountValid(dto.getBettingPoint());
+
+        if(bettingValid){
+           votingBoard.setTotalBetAmount(votingBoard.getTotalBetAmount() + dto.getBettingPoint());
+        } else {
+            throw new CustomException(CustomExceptionCode.INVALID_BETTING_AMOUNT);
+        }
+
         VoteResult voteResult = VoteResult.builder()
                 .bettingPoint(dto.getBettingPoint())    // 10000, 50000 , 100000 제한  Exception 필요
                 .itemId(dto.getItemId())
@@ -219,6 +233,18 @@ public class VotingBoardServiceImpl implements VotingBoardService {
             return false;
         }
         return true;
+    }
+
+    // 투표시 베팅한 금액 체크 10000, 50000, 100000 제한
+    public boolean isBettingAmountValid(Long bettingPoint) {
+        // 투표 금액의 유효성을 검사합니다.
+        if (bettingPoint == 10000 || bettingPoint == 50000 || bettingPoint == 100000) {
+            // 유효한 금액인 경우
+            return true;
+        } else {
+            // 유효하지 않은 금액인 경우
+            return false;
+        }
     }
 
 

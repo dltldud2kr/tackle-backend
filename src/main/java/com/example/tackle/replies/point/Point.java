@@ -1,4 +1,4 @@
-package com.example.tackle.point;
+package com.example.tackle.replies.point;
 
 import lombok.*;
 

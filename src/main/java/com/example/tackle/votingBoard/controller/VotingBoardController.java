@@ -5,6 +5,7 @@ import com.example.tackle.dto.ResultDTO;
 import com.example.tackle.exception.CustomException;
 import com.example.tackle.voteItems.service.VoteItemsService;
 import com.example.tackle.voteResult.dto.VoteResultDto;
+import com.example.tackle.votingBoard.dto.GetBoardDto;
 import com.example.tackle.votingBoard.dto.VotingBoardDto;
 import com.example.tackle.votingBoard.dto.VotingBoardResponseDto;
 import com.example.tackle.votingBoard.service.VotingBoardService;
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @Slf4j
@@ -67,10 +69,11 @@ public class VotingBoardController {
     })
 
     @GetMapping("/info")
-    public ResultDTO<VotingBoardResponseDto> getBoard(@RequestParam("postId") Long postId , @RequestBody JsonNode requestBody) {
-        String id = requestBody.get("id").asText();
+    public ResultDTO<VotingBoardResponseDto> getBoard(@RequestParam Long postId, Principal principal) {
+        String email = principal.getName();
+        System.out.println("id = " + email);
         try {
-            VotingBoardResponseDto boardInfo = votingBoardService.getBoardInfo(postId, id);
+            VotingBoardResponseDto boardInfo = votingBoardService.getBoardInfo(postId, email);
             return ResultDTO.of(boardInfo != null, ApiResponseCode.SUCCESS.getCode(), boardInfo != null ? "성공" : "해당 PostId 정보를 찾을 수 없습니다.",boardInfo);
 
         } catch (CustomException e) {

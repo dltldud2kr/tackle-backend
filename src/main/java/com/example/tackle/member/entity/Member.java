@@ -1,6 +1,7 @@
 package com.example.tackle.member.entity;
 
 import com.example.tackle._enum.MemberRoles;
+import com.example.tackle.member.service.CustomUserDetailsService;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -51,7 +52,7 @@ public class Member implements UserDetails {
         return email;
     }
 
-    public String getEmail() {return email;}
+    public String getIdx() {return idx;}
 
 
     // idx 카카오 고유번호  (pk값) 을 password 로 둠.
