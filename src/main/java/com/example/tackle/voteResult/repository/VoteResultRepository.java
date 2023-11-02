@@ -1,5 +1,6 @@
 package com.example.tackle.voteResult.repository;
 
+import com.example.tackle._enum.VotingResultStatus;
 import com.example.tackle.voteResult.entity.VoteResult;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -13,6 +14,8 @@ public interface VoteResultRepository extends JpaRepository<VoteResult,Long> {
     Optional<VoteResult> findByPostIdAndIdx(Long postId, String memberIdx);
 
     List<VoteResult> findAllByIdx(String memberIdx);
+
+    List<VoteResult> findByPostIdAndStatus(Long postId, VotingResultStatus status);
 
 
     Optional<VoteResult> findByResultIdAndIdx(Long resultId , String memberIdx);

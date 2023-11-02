@@ -17,7 +17,6 @@ import com.example.tackle.votingBoard.entity.VotingBoard;
 import com.example.tackle.votingBoard.repository.VotingBoardRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -183,6 +182,8 @@ public class VotingBoardServiceImpl implements VotingBoardService {
             throw new CustomException(CustomExceptionCode.ALREADY_VOTED);
         }
 
+        Long totalAmount = votingBoard.getTotalBetAmount();
+
         //투표기한이 지났는지 확인
         boolean result = updateVotingStatusIfNeeded(votingBoard);
 
@@ -245,6 +246,34 @@ public class VotingBoardServiceImpl implements VotingBoardService {
             // 유효하지 않은 금액인 경우
             return false;
         }
+    }
+
+    public void distributePoint(Long postId, Long totalAmount){
+        long totalPrize = totalAmount;
+        //수수료 계산 3%
+        double commission = totalPrize *  0.03;
+        System.out.println("commission = " + commission);
+        double netPrize = totalPrize - commission; // 수수료 공제 후 순수 상금
+        System.out.println("netPrize = " + netPrize);
+
+        double remainingAmount = Math.floor(netPrize);
+
+        List<VoteResult> voteResultList = voteResultRepository.findByPostIdAndStatus(postId, VotingResultStatus.WIN);
+
+        long s = 0;
+        for(VoteResult x : voteResultList){
+            s += x.getBettingPoint();
+//            double userShare = Math.round((x.getBettingPoint() / netPrize) * remainingAmount);
+        }
+        double sum = s;
+        for(VoteResult x : voteResultList){
+            double getPoint = (double)(x.getBettingPoint() / sum) * remainingAmount;
+
+        }
+
+
+
+
     }
 
 
