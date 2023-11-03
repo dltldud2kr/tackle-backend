@@ -9,6 +9,8 @@ import com.example.tackle.member.repository.MemberRepository;
 import com.example.tackle.point.Point;
 import com.example.tackle.point.PointRepository;
 import com.example.tackle.point.PointService;
+import com.example.tackle.revenue.RevenueRepository;
+import com.example.tackle.revenue.RevenueService;
 import com.example.tackle.voteItems.entity.VoteItems;
 import com.example.tackle.voteItems.repository.VoteItemsRepository;
 import com.example.tackle.voteItems.service.VoteItemsService;
@@ -35,6 +37,7 @@ public class VotingBoardServiceImpl implements VotingBoardService {
     private final PointRepository pointRepository;
 
     private final VoteItemsService voteItemsService;
+    private final RevenueService revenueService;
     private final PointService pointService;
     private final VotingBoardRepository votingBoardRepository;
     private final MemberRepository memberRepository;
@@ -42,6 +45,7 @@ public class VotingBoardServiceImpl implements VotingBoardService {
     private final VoteItemsRepository voteItemsRepository;
 
     private final VoteResultRepository voteResultRepository;
+    private final RevenueRepository revenueRepository;
 
     private static final Long BOARD_CREATE_COST = -1000L;
 
@@ -189,6 +193,8 @@ public class VotingBoardServiceImpl implements VotingBoardService {
     @Override
     public boolean voting(VoteResultDto dto) {
 
+        Member member = memberRepository.findById(dto.getIdx())
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND_USER));
         // 해당 투표항목이 존재여부 확인
         VoteItems voteItems = voteItemsRepository.findById(dto.getItemId())
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND));
@@ -211,10 +217,15 @@ public class VotingBoardServiceImpl implements VotingBoardService {
         long totalAmount = votingBoard.getTotalBetAmount();
 
 
+
+
         //투표기한이 지났는지 확인
         boolean result = updateVotingStatusIfNeeded(votingBoard);
 
         if(result == false){
+            //투표 결과에 따른 포인트 지급
+            distributePoint(postId,totalAmount);
+
             throw new CustomException(CustomExceptionCode.EXPIRED_VOTE);
         }
 
@@ -224,11 +235,14 @@ public class VotingBoardServiceImpl implements VotingBoardService {
         // 투표시 베팅한 금액 체크 10000, 50000, 100000 제한
         boolean bettingValid = isBettingAmountValid(dto.getBettingPoint());
 
-        if(bettingValid){
-           votingBoard.setTotalBetAmount(votingBoard.getTotalBetAmount() + dto.getBettingPoint());
-        } else {
+
+
+        if(!bettingValid){
             throw new CustomException(CustomExceptionCode.INVALID_BETTING_AMOUNT);
+
         }
+
+        votingBoard.setTotalBetAmount(votingBoard.getTotalBetAmount() + dto.getBettingPoint());
 
         VoteResult voteResult = VoteResult.builder()
                 .bettingPoint(dto.getBettingPoint())    // 10000, 50000 , 100000 제한  Exception 필요
@@ -240,6 +254,13 @@ public class VotingBoardServiceImpl implements VotingBoardService {
                 .idx(dto.getIdx())
                 .build();
         voteResultRepository.save(voteResult);
+
+        //포인트 테이블 추가
+        pointService.create(dto.getIdx(), dto.getBettingPoint(), 3);
+
+        // 멤버 테이블 포인트 수정
+        member.setPoint(member.getPoint() - dto.getBettingPoint());
+        memberRepository.save(member);
 
         //투표 수 증가
         voteItems.setVoteCount(voteItems.getVoteCount() + 1);
@@ -297,8 +318,6 @@ public class VotingBoardServiceImpl implements VotingBoardService {
             // 승리한 사람만 필터링
             if (x.getStatus() == VotingResultStatus.WIN){
                 totalWinAmount += x.getBettingPoint();
-            } else {
-
             }
 
         }
@@ -311,10 +330,25 @@ public class VotingBoardServiceImpl implements VotingBoardService {
             double userShare = Math.floor((x.getBettingPoint() / totalWinAmountDouble) * remainingAmount);
             x.setGetPoint((long)userShare);
             floorTotalAmount +=userShare;
+
+            // 베팅결과에 따른 포인트지급  (승리)
+            Member member= memberRepository.findById(x.getIdx())
+                    .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND_USER));
+
+            member.setPoint(member.getPoint() + (long)userShare);
+            memberRepository.save(member);
+
+            //포인트 내역에 저장
+            pointService.create(x.getIdx(),(long)userShare,1);
         }
 
+        // 버림 처리로 생긴 남은 포인트
         double floorRemainPoint = netPrize -floorTotalAmount;
 
+        // 최종 Tackle 이 얻은 포인트
+        Long finallyPoint = (long) (commission + floorRemainPoint);
+
+        revenueService.create(finallyPoint,0);
 
     }
 
