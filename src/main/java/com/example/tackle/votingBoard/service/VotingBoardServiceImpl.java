@@ -208,11 +208,18 @@ public class VotingBoardServiceImpl implements VotingBoardService {
         //투표를 이미 했는지 확인
         Optional<VoteResult> existingVoteResult = voteResultRepository.findByIdxAndItemId(dto.getIdx(),dto.getItemId());
         if (existingVoteResult.isPresent()) {
+            System.out.println("투표함");
 
             // 이미 투표를 한 경우에 대한 예외 처리
             throw new CustomException(CustomExceptionCode.ALREADY_VOTED);
         }
+        System.out.println("투표안함");
 
+        if (member.getPoint() < dto.getBettingPoint()){
+            throw new CustomException(CustomExceptionCode.NOT_ENOUGH_POINTS);
+        }
+
+        System.out.println("돈있음");
         // 총 게시글 금액
         long totalAmount = votingBoard.getTotalBetAmount();
 
@@ -224,7 +231,11 @@ public class VotingBoardServiceImpl implements VotingBoardService {
 
         if(result == false){
             //투표 결과에 따른 포인트 지급
+            System.out.println("투표기한지남");
             distributePoint(postId,totalAmount);
+
+            // 사용자들 투표에 승리했는지안했는지 확인. 2023-11-03
+            test(dto.getIdx());
 
             throw new CustomException(CustomExceptionCode.EXPIRED_VOTE);
         }
@@ -271,6 +282,65 @@ public class VotingBoardServiceImpl implements VotingBoardService {
     }
 
 
+    void test (String memberIdx){
+        List<VoteResult> voteResultList = voteResultRepository.findAllByIdx(memberIdx);
+        for (VoteResult voteResult : voteResultList){
+
+            Long postId = voteResult.getPostId();
+            VotingBoard votingBoard = votingBoardRepository.findById(postId)
+                    .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND));
+        List<VoteItems> voteItems3 = voteItemsRepository.findByPostIdOrderByVoteCountDesc(postId);
+
+        System.out.println(voteItems3.size());
+        for (VoteItems x : voteItems3){
+            System.out.println(x.getVoteCount());
+            System.out.println(x.getContent());
+        }
+
+        if (!voteItems3.isEmpty()) {
+            Long minCount = voteItems3.get(0).getVoteCount();
+            List<VoteItems> minCountItems = new ArrayList<>();
+
+            // 투표가 동률일 때
+            for (VoteItems item : voteItems3) {
+                if (item.getVoteCount() == minCount) {
+                    minCountItems.add(item);
+                } else if (item.getVoteCount() < minCount) {
+                    minCount = item.getVoteCount();
+                    minCountItems.clear();
+                    minCountItems.add(item);
+                }
+            }
+
+            // minCountItems 리스트에는 가장 적은 카운트를 가진 VoteItems 객체들이 저장됩니다.
+            // 이 리스트는 동일한 카운트를 가진 항목들을 모두 포함합니다.
+
+            if (minCountItems.size() == 1) {
+                // 동일한 카운트가 없는 경우 다른 메소드를 실행
+                VoteItems voteItems2 = minCountItems.get(0);
+                Long result1 = voteItems2.getItemId();
+                System.out.println("result1 = " + result1);
+                Long result2 = voteResult.getItemId();
+                System.out.println("result2 = " + result2);
+
+                if (result1.equals(result2)) {
+                    voteResult.setStatus(VotingResultStatus.LOSE);
+                    System.out.println("LOSE");
+                } else {
+                    voteResult.setStatus(VotingResultStatus.WIN);
+                    System.out.println("WIN");
+                }
+            } else {
+                // 동일한 카운트가 있는 경우 다른 처리를 수행하거나 필요한 로직을 추가
+                // minCountItems에는 동일한 카운트를 가진 항목들이 포함됨.
+                // 다른 처리를 수행하는 로직을 여기에 추가.
+                voteResult.setStatus(VotingResultStatus.DRAW);
+            }
+        } else {
+            throw new CustomException(CustomExceptionCode.NOT_FOUND,"투표항목이 없습니다.");
+        }
+    }
+    }
 
 
     // 투표 기간이 지났으면 투표상태를 END로 변경 로직
@@ -385,8 +455,6 @@ public class VotingBoardServiceImpl implements VotingBoardService {
                 .createdAt(votingBoard.getCreatedAt())
                 .build();
     }
-
-
 
 
 }
