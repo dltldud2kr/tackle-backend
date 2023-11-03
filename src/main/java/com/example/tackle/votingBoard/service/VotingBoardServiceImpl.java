@@ -4,7 +4,11 @@ import com.example.tackle._enum.CustomExceptionCode;
 import com.example.tackle._enum.VotingResultStatus;
 import com.example.tackle._enum.VotingStatus;
 import com.example.tackle.exception.CustomException;
+import com.example.tackle.member.entity.Member;
 import com.example.tackle.member.repository.MemberRepository;
+import com.example.tackle.point.Point;
+import com.example.tackle.point.PointRepository;
+import com.example.tackle.point.PointService;
 import com.example.tackle.voteItems.entity.VoteItems;
 import com.example.tackle.voteItems.repository.VoteItemsRepository;
 import com.example.tackle.voteItems.service.VoteItemsService;
@@ -28,8 +32,10 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class VotingBoardServiceImpl implements VotingBoardService {
+    private final PointRepository pointRepository;
 
     private final VoteItemsService voteItemsService;
+    private final PointService pointService;
     private final VotingBoardRepository votingBoardRepository;
     private final MemberRepository memberRepository;
 
@@ -37,11 +43,19 @@ public class VotingBoardServiceImpl implements VotingBoardService {
 
     private final VoteResultRepository voteResultRepository;
 
+    private static final Long BOARD_CREATE_COST = -1000L;
+
     @Transactional
     public boolean create(VotingBoardDto dto) {
 
-        memberRepository.findById(dto.getIdx())
+
+        Member member = memberRepository.findById(dto.getIdx())
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND));
+
+        //포인트가 부족하면 게시글 작성 불가
+        if (member.getPoint() < -BOARD_CREATE_COST){
+            throw new CustomException(CustomExceptionCode.NOT_ENOUGH_POINTS);
+        }
 
         LocalDateTime currentDateTime = LocalDateTime.now(); // 현재 시각 가져오기
 
@@ -70,6 +84,17 @@ public class VotingBoardServiceImpl implements VotingBoardService {
                     .build();
 
             VotingBoard savedVotingBoard = votingBoardRepository.save(votingBoard);
+
+            //게시글 작성시 1000P 차감
+            member.setPoint(member.getPoint() + BOARD_CREATE_COST);
+            memberRepository.save(member);
+
+            // 포인트 사용내역 저장
+            Point pointCreate = pointService.create(dto.getIdx(),BOARD_CREATE_COST, 0);
+
+            pointRepository.save(pointCreate);
+
+
             Long savedPostId = savedVotingBoard.getPostId();
 
             // 투표 항목 로직 (선택지 2개이상 선택)
@@ -182,7 +207,9 @@ public class VotingBoardServiceImpl implements VotingBoardService {
             throw new CustomException(CustomExceptionCode.ALREADY_VOTED);
         }
 
-        Long totalAmount = votingBoard.getTotalBetAmount();
+        // 총 게시글 금액
+        long totalAmount = votingBoard.getTotalBetAmount();
+
 
         //투표기한이 지났는지 확인
         boolean result = updateVotingStatusIfNeeded(votingBoard);
@@ -190,6 +217,9 @@ public class VotingBoardServiceImpl implements VotingBoardService {
         if(result == false){
             throw new CustomException(CustomExceptionCode.EXPIRED_VOTE);
         }
+
+
+
 
         // 투표시 베팅한 금액 체크 10000, 50000, 100000 제한
         boolean bettingValid = isBettingAmountValid(dto.getBettingPoint());
@@ -253,25 +283,37 @@ public class VotingBoardServiceImpl implements VotingBoardService {
         //수수료 계산 3%
         double commission = totalPrize *  0.03;
         System.out.println("commission = " + commission);
-        double netPrize = totalPrize - commission; // 수수료 공제 후 순수 상금
+        double netPrize = totalPrize - commission; // 수수료 공제 후 순수 베팅금
         System.out.println("netPrize = " + netPrize);
 
+        // 순수 베팅금 버림처리
         double remainingAmount = Math.floor(netPrize);
 
-        List<VoteResult> voteResultList = voteResultRepository.findByPostIdAndStatus(postId, VotingResultStatus.WIN);
+        List<VoteResult> voteResultList = voteResultRepository.findByPostId(postId);
 
-        long s = 0;
+        // 베팅에 승리한 사람들의 총 포인트
+        long totalWinAmount = 0;
         for(VoteResult x : voteResultList){
-            s += x.getBettingPoint();
-//            double userShare = Math.round((x.getBettingPoint() / netPrize) * remainingAmount);
+            // 승리한 사람만 필터링
+            if (x.getStatus() == VotingResultStatus.WIN){
+                totalWinAmount += x.getBettingPoint();
+            } else {
+
+            }
+
         }
-        double sum = s;
+        // double 형태로 변경
+        double totalWinAmountDouble = totalWinAmount;
+
+        //버림 처리 한 총 금액
+        double floorTotalAmount = 0;
         for(VoteResult x : voteResultList){
-            double getPoint = (double)(x.getBettingPoint() / sum) * remainingAmount;
-
+            double userShare = Math.floor((x.getBettingPoint() / totalWinAmountDouble) * remainingAmount);
+            x.setGetPoint((long)userShare);
+            floorTotalAmount +=userShare;
         }
 
-
+        double floorRemainPoint = netPrize -floorTotalAmount;
 
 
     }

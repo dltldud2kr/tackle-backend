@@ -29,6 +29,7 @@ public class Member implements UserDetails {
     private String refreshToken; //리프레쉬 토큰
     private String userName;
     private String nickname;
+    private Long point;
     @Enumerated(EnumType.STRING)
     private MemberRoles role;
     private LocalDateTime regDt;

@@ -201,7 +201,7 @@ public class MemberServiceImpl implements MemberService {
 
     @Transactional
     @Override
-    public TokenDto join(String email, String memberIdx) {
+    public TokenDto join(String email, String memberIdx, String nickname) {
         try {
             //해당 이메일이 존재하는지 확인.
             Optional<Member> optionalMember =  memberRepository.findById(email);
@@ -212,7 +212,9 @@ public class MemberServiceImpl implements MemberService {
             Member member = Member.builder()
                     .email(email)
                     .idx(memberIdx)
+                    .point(50000000L)
                     .refreshToken(null)
+                    .nickname(nickname)
                     .regDt(LocalDateTime.now())
                     .build();
             memberRepository.save(member);
