@@ -14,6 +14,7 @@ import com.example.tackle.votingBoard.repository.VotingBoardRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -32,7 +33,7 @@ public class VoteResultServiceImpl implements VoteResultService {
 
 
     @Override
-    public List<VoteResult> list(String memberIdx) {
+    public List<VoteResult> list(@RequestParam String memberIdx) {
 
         List<VoteResult> voteResultList = voteResultRepository.findAllByIdx(memberIdx);
 

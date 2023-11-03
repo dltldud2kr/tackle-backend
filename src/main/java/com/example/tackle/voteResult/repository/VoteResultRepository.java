@@ -16,6 +16,7 @@ public interface VoteResultRepository extends JpaRepository<VoteResult,Long> {
     List<VoteResult> findAllByIdx(String memberIdx);
 
     List<VoteResult> findByPostIdAndStatus(Long postId, VotingResultStatus status);
+    List<VoteResult> findByPostId(Long postId);
 
 
     Optional<VoteResult> findByResultIdAndIdx(Long resultId , String memberIdx);

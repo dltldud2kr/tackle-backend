@@ -105,7 +105,7 @@ public class MemberController {
         Map<String, Object> result = memberService.getUserInfo(kakaoToken);
         log.info("result:: " + result);
         String idx = (String) result.get("id");
-        String userName = (String) result.get("nickname");
+        String nickname = (String) result.get("nickname");
         String email = (String) result.get("email");
         String profileImage = (String) result.get("profileImage");
 
@@ -126,7 +126,7 @@ public class MemberController {
                 return response;
             }
         } else {
-            TokenDto tokenDto = memberService.join(email,idx);
+            TokenDto tokenDto = memberService.join(email,idx, nickname);
             JoinRequestDto<Object> response = JoinRequestDto.of(true,"신규회원",
                     ApiResponseCode.CREATED.getCode(), "회원가입이 완료되었습니다.", tokenDto);
             response.setUserInfo(result);  // 사용자 정보를 설정합니다.
