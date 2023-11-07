@@ -39,11 +39,15 @@ public class VoteResultController {
     })
 
     @GetMapping("/info")
-    public ResultDTO voteResultInfo(String memberIdx) {
+    public ResultDTO voteResultInfo(Principal principal) {
+        String email = "";
+        if (principal == null) {
+            email = "";
+        } else {
+            email = principal.getName(); // 사용자가 로그인한 경우 이메일 가져오기
+        }
 
-//        String memberEmail = principal.getName(); // 사용자 id값
-
-        List<VoteResult> list = voteResultService.list(memberIdx);
+        List<VoteResult> list = voteResultService.list(email);
         try{
             return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "조회 성공", list);
         }catch (CustomException e){

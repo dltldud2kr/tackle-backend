@@ -12,6 +12,6 @@ public interface VoteResultService {
     /**
      * 투표 참여 정보 조회
      */
-    List<VoteResult> list(String memberIdx);
+    List<VoteResult> list(String email);
 
 }

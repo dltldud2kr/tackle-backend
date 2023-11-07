@@ -124,8 +124,6 @@ public class VotingBoardServiceImpl implements VotingBoardService {
     @Override
     public VotingBoardResponseDto getBoardInfo(Long postId, String email) {
 
-        System.out.println("in");
-        System.out.println(email);
         boolean isVoting = false;
         String id = "";
         if(!email.isEmpty()){
@@ -150,6 +148,21 @@ public class VotingBoardServiceImpl implements VotingBoardService {
         //투표항목이 없는 게시글 예외처리
         if(voteItemsList.isEmpty()){
             throw new CustomException(CustomExceptionCode.NOT_FOUND_ITEMS);
+        }
+
+        // 조회시 투표결과 업데이트
+        if (!(votingBoard.getStatus() == VotingStatus.END)){
+            //게시글 상태 업데이트
+            boolean result = updateVotingStatusIfNeeded(votingBoard);
+            //투표자 승패 업데이트
+            voterWL(postId);
+            long totalAmount = votingBoard.getTotalBetAmount();
+
+            if(result == false){
+                // 베팅한 사람들에게 포인트 분배
+                distributePoint(postId,totalAmount);
+            }
+
         }
 
 
@@ -215,12 +228,10 @@ public class VotingBoardServiceImpl implements VotingBoardService {
         //투표를 이미 했는지 확인
         Optional<VoteResult> existingVoteResult = voteResultRepository.findByIdxAndItemId(dto.getIdx(),dto.getItemId());
         if (existingVoteResult.isPresent()) {
-            System.out.println("투표함");
 
             // 이미 투표를 한 경우에 대한 예외 처리
             throw new CustomException(CustomExceptionCode.ALREADY_VOTED);
         }
-        System.out.println("투표안함");
 
         // 투표 기간이 지났는지 확인
         if(votingBoard.getStatus() == VotingStatus.END) {
@@ -237,12 +248,11 @@ public class VotingBoardServiceImpl implements VotingBoardService {
             // 총 게시글 금액
             long totalAmount = votingBoard.getTotalBetAmount();
             if(result == false){
+
                 //투표 결과에 따른 포인트 지급
-                System.out.println("투표기한지남");
                 distributePoint(postId,totalAmount);
 
                 // 사용자들 투표에 승리했는지안했는지 확인. 2023-11-03
-
 
                 throw new CustomException(CustomExceptionCode.EXPIRED_VOTE);
             }
@@ -253,13 +263,8 @@ public class VotingBoardServiceImpl implements VotingBoardService {
             throw new CustomException(CustomExceptionCode.NOT_ENOUGH_POINTS);
         }
 
-        System.out.println("돈있음");
-
-
         // 투표시 베팅한 금액 체크 10000, 50000, 100000 제한
         boolean bettingValid = isBettingAmountValid(dto.getBettingPoint());
-
-
 
         if(!bettingValid){
             throw new CustomException(CustomExceptionCode.INVALID_BETTING_AMOUNT);
@@ -318,7 +323,7 @@ public class VotingBoardServiceImpl implements VotingBoardService {
 
 
     // 투표자 승패 업데이트 메서드
-    void voterWL (Long boardId){
+    public void voterWL (Long boardId){
 
         List<VoteResult> voteResultList = voteResultRepository.findByPostId(boardId);
 
@@ -327,13 +332,6 @@ public class VotingBoardServiceImpl implements VotingBoardService {
             Long postId = voteResult.getPostId();
 
         List<VoteItems> voteItemsDesc = voteItemsRepository.findByPostIdOrderByVoteCountDesc(postId);
-
-        System.out.println("VoteItemsDesc.size() = " + voteItemsDesc.size());
-        for (VoteItems x : voteItemsDesc){
-            System.out.print("getContent = " + x.getContent() + ": ");
-            System.out.println("getVoteCount = " + x.getVoteCount());
-
-        }
 
         if (!voteItemsDesc.isEmpty()) {
             Long minCount = voteItemsDesc.get(0).getVoteCount();
@@ -350,23 +348,20 @@ public class VotingBoardServiceImpl implements VotingBoardService {
                 }
             }
 
-            // minCountItems 리스트에는 가장 적은 카운트를 가진 VoteItems 객체들이 저장됩니다.
-            // 이 리스트는 동일한 카운트를 가진 항목들을 모두 포함합니다.
+            // minCountItems 리스트에는 가장 적은 카운트를 가진 VoteItems 객체들이 저장.
+            // 이 리스트는 동일한 카운트를 가진 항목들을 모두 포함.
 
             if (minCountItems.size() == 1) {
                 // 동일한 카운트가 없는 경우 다른 메소드를 실행
                 VoteItems voteItems2 = minCountItems.get(0);
+
                 Long result1 = voteItems2.getItemId();
-                System.out.println("result1 = " + result1);
                 Long result2 = voteResult.getItemId();
-                System.out.println("result2 = " + result2);
 
                 if (result1.equals(result2)) {
                     voteResult.setStatus(VotingResultStatus.LOSE);
-                    System.out.println("LOSE");
                 } else {
                     voteResult.setStatus(VotingResultStatus.WIN);
-                    System.out.println("WIN");
                 }
             } else {
                 // 동일한 카운트가 있는 경우 다른 처리를 수행하거나 필요한 로직을 추가
@@ -399,37 +394,24 @@ public class VotingBoardServiceImpl implements VotingBoardService {
 
     // 투표시 베팅한 금액 체크 10000, 50000, 100000 제한
     public boolean isBettingAmountValid(Long bettingPoint) {
-        // 투표 금액의 유효성을 검사합니다.
-        if (bettingPoint == 10000 || bettingPoint == 50000 || bettingPoint == 100000) {
-            // 유효한 금액인 경우
-            return true;
-        } else {
-            // 유효하지 않은 금액인 경우
-            return false;
-        }
+        return bettingPoint == 10000 || bettingPoint == 50000 || bettingPoint == 100000;
     }
+
 
     //  포인트 분배 메서드
     public void distributePoint(Long postId, Long totalAmount){
+        // 수수료를 공제한 총 상금 베팅금
         long totalPrize = totalAmount;
-        //수수료 계산 3%
-        double commission = totalPrize *  0.03;
-        System.out.println("commission = " + commission);
-        double netPrize = totalPrize - commission; // 수수료 공제 후 순수 베팅금
-        System.out.println("netPrize = " + netPrize);
+        double commission = totalPrize *  0.03; //수수료 계산 3%
+        double netPrize = totalPrize - commission;
 
-        // 수수료 제외 베팅금 버림처리
+        // 수수료 제외 베팅금 내림처리
         double remainingAmount = Math.floor(netPrize);
-
-        System.out.println("remainingAmount = " + remainingAmount);
 
         List<VoteResult> voteResultList = voteResultRepository.findByPostId(postId);
 
         // 베팅에 승리한 사람들의 총 포인트
         long totalWinAmount = 0;
-
-        // 아직 안 쓰지만 혹시를 위해
-//        long totalDrawAmount = 0;
 
         //DRAW : false  // WIN : true
         boolean result = false;
@@ -437,37 +419,29 @@ public class VotingBoardServiceImpl implements VotingBoardService {
 
         for(VoteResult x : voteResultList){
             // 승리한 사람만 필터링
-            if (x.getStatus() == VotingResultStatus.WIN){
-                System.out.println("유저이름 : " + x.getIdx());
-                System.out.println("유저 상태 : " + x.getStatus());
-                System.out.println("로직상태확인" + (x.getStatus() == VotingResultStatus.WIN));
+            if ((x.getStatus() == VotingResultStatus.WIN) && (x.getBettingPoint() > 0)){
+
                 totalWinAmount += x.getBettingPoint();
-                System.out.println("totalWinAmount = " + totalWinAmount);
                 result = true;
 
-                System.out.println("result = " + result);
                 //무승부만 필터링
-            } else if (x.getStatus() == VotingResultStatus.DRAW){
+            } else if ((x.getStatus() == VotingResultStatus.DRAW) && (x.getBettingPoint() > 0)){
                 count++;
-//                totalDrawAmount += x.getBettingPoint();
             }
 
         }
         // double 형태로 변경 ( 승리 베팅자 포인트 총합 )
         double totalWinAmountDouble = (double) totalWinAmount;
-        System.out.println("totalWinAmountDouble(더블형태로변경) = " + totalWinAmountDouble);
 
         //버림 처리 한 총 금액
         double floorTotalAmount = 0;
         double userShare = 0;
 
-        System.out.println("result = " + result);
         for(VoteResult x : voteResultList){
             if(result && (x.getStatus() == VotingResultStatus.WIN)){
 
                 userShare = Math.floor((x.getBettingPoint() / totalWinAmountDouble) * remainingAmount);
-                System.out.println(x.getBettingPoint() + "/" + totalWinAmountDouble + "*" + remainingAmount +
-                        "= " + userShare);
+
             } else if (!result) {
 
                 userShare = Math.floor(remainingAmount / count);
@@ -477,21 +451,15 @@ public class VotingBoardServiceImpl implements VotingBoardService {
             // LOSE 빼고 포인트 적립
             if(!(x.getStatus() == VotingResultStatus.LOSE)){
 
+                //얻은 포인트 DB에서 수정
                 x.setGetPoint((long)userShare);
 
-                System.out.println("setGetPoint = " + x.getGetPoint());
-
                 floorTotalAmount +=userShare;
-
-                System.out.println("floorTotalAmount = " + floorTotalAmount);
-
 
                 Member member= memberRepository.findById(x.getIdx())
                         .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND_USER));
 
                 member.setPoint(member.getPoint() + (long)userShare);
-
-                System.out.println("member.getPoint = " + member.getPoint());
 
                 //회원 잔여 포인트 수정
                 memberRepository.save(member);
@@ -504,13 +472,8 @@ public class VotingBoardServiceImpl implements VotingBoardService {
 
         // 버림 처리로 생긴 남은 포인트
         double floorRemainPoint = netPrize -floorTotalAmount;
-
-        System.out.println("floorRemainPoint = " + floorRemainPoint);
-
         // 최종 Tackle 이 얻은 포인트
         Long finallyPoint = (long) (commission + floorRemainPoint);
-
-        System.out.println("finallyPoint = " + finallyPoint);
 
         revenueService.create(finallyPoint,0);
 
