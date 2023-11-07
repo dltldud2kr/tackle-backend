@@ -12,6 +12,7 @@ public interface VoteResultRepository extends JpaRepository<VoteResult,Long> {
 
     Optional<VoteResult> findByIdxAndItemId(String idx,Long itemId);
     Optional<VoteResult> findByPostIdAndIdx(Long postId, String memberIdx);
+    Optional<VoteResult> findByIdxAndPostId(String idx, Long postId);
 
     List<VoteResult> findAllByIdx(String memberIdx);
 

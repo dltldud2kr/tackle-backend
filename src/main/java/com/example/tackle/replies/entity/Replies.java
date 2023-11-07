@@ -1,5 +1,4 @@
-package com.example.tackle.replies;
-
+package com.example.tackle.replies.entity;
 
 import lombok.*;
 
@@ -16,16 +15,16 @@ import java.time.LocalDateTime;
 @Setter
 public class Replies {
 
-
     @Id
     @GeneratedValue
     private Long repliesId;
 
-    private Long idx;
+    private Long idx; // 카카오 고유번호 12자리
     private Long postId;
 
     private String comment;
     private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private String createdMinutesAgo;
+//    private LocalDateTime updatedAt; // 수정 불가라니까 제외
 
 }
