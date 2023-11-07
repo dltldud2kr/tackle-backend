@@ -16,7 +16,8 @@ public enum CustomExceptionCode {
     ALREADY_VOTED("ALREADY_VOTED", "이미 투표를 완료했습니다"),
     NOT_FOUND_ITEMS("NOT_FOUND_ITEMS", "투표항목이 없는 게시글입니다."),
     INVALID_BETTING_AMOUNT("INVALID_BETTING_AMOUNT", "유효하지않은 베팅 금액입니다."),
-    NOT_ENOUGH_POINTS("NOT_ENOUGH_POINTS_EXCEPTION", "포인트가 부족합니다");
+    NOT_ENOUGH_POINTS("NOT_ENOUGH_POINTS_EXCEPTION", "포인트가 부족합니다"),
+    NOT_VOTED("NOT_VOTED", "아직 투표를 하지 않았습니다.");
 
     // 추후에 추가될 다른 업로드 타입들
 
