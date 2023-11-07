@@ -224,6 +224,7 @@ public class VotingBoardServiceImpl implements VotingBoardService {
 
         // 투표 기간이 지났는지 확인
         if(votingBoard.getStatus() == VotingStatus.END) {
+            System.out.println("이미 end상태");
 
             throw new CustomException(CustomExceptionCode.EXPIRED_VOTE);
         } else {
@@ -316,10 +317,9 @@ public class VotingBoardServiceImpl implements VotingBoardService {
     }
 
 
+    // 투표자 승패 업데이트 메서드
     void voterWL (Long boardId){
 
-        //해당 유저의 투표결과리스트를 들고온다 ?
-        //해당 postId와 같은 투표결과리스트를 들고오고 거기서 비교해야하는 거 아닌가?
         List<VoteResult> voteResultList = voteResultRepository.findByPostId(boardId);
 
 
@@ -328,10 +328,11 @@ public class VotingBoardServiceImpl implements VotingBoardService {
 
         List<VoteItems> voteItemsDesc = voteItemsRepository.findByPostIdOrderByVoteCountDesc(postId);
 
-        System.out.println(voteItemsDesc.size());
+        System.out.println("VoteItemsDesc.size() = " + voteItemsDesc.size());
         for (VoteItems x : voteItemsDesc){
-            System.out.println(x.getVoteCount());
-            System.out.println(x.getContent());
+            System.out.print("getContent = " + x.getContent() + ": ");
+            System.out.println("getVoteCount = " + x.getVoteCount());
+
         }
 
         if (!voteItemsDesc.isEmpty()) {
@@ -408,6 +409,7 @@ public class VotingBoardServiceImpl implements VotingBoardService {
         }
     }
 
+    //  포인트 분배 메서드
     public void distributePoint(Long postId, Long totalAmount){
         long totalPrize = totalAmount;
         //수수료 계산 3%
@@ -416,13 +418,23 @@ public class VotingBoardServiceImpl implements VotingBoardService {
         double netPrize = totalPrize - commission; // 수수료 공제 후 순수 베팅금
         System.out.println("netPrize = " + netPrize);
 
-        // 순수 베팅금 버림처리
+        // 수수료 제외 베팅금 버림처리
         double remainingAmount = Math.floor(netPrize);
+
+        System.out.println("remainingAmount = " + remainingAmount);
 
         List<VoteResult> voteResultList = voteResultRepository.findByPostId(postId);
 
         // 베팅에 승리한 사람들의 총 포인트
         long totalWinAmount = 0;
+
+        // 아직 안 쓰지만 혹시를 위해
+//        long totalDrawAmount = 0;
+
+        //DRAW : false  // WIN : true
+        boolean result = false;
+        int count = 0;
+
         for(VoteResult x : voteResultList){
             // 승리한 사람만 필터링
             if (x.getStatus() == VotingResultStatus.WIN){
@@ -430,41 +442,64 @@ public class VotingBoardServiceImpl implements VotingBoardService {
                 System.out.println("유저 상태 : " + x.getStatus());
                 System.out.println("로직상태확인" + (x.getStatus() == VotingResultStatus.WIN));
                 totalWinAmount += x.getBettingPoint();
-                System.out.println("totalWinAmount = " + totalAmount);
+                System.out.println("totalWinAmount = " + totalWinAmount);
+                result = true;
+
+                System.out.println("result = " + result);
+                //무승부만 필터링
+            } else if (x.getStatus() == VotingResultStatus.DRAW){
+                count++;
+//                totalDrawAmount += x.getBettingPoint();
             }
 
         }
-        // double 형태로 변경
-        double totalWinAmountDouble = totalWinAmount;
+        // double 형태로 변경 ( 승리 베팅자 포인트 총합 )
+        double totalWinAmountDouble = (double) totalWinAmount;
         System.out.println("totalWinAmountDouble(더블형태로변경) = " + totalWinAmountDouble);
 
         //버림 처리 한 총 금액
         double floorTotalAmount = 0;
+        double userShare = 0;
+
+        System.out.println("result = " + result);
         for(VoteResult x : voteResultList){
-            double userShare = Math.floor((x.getBettingPoint() / totalWinAmountDouble) * remainingAmount);
-            System.out.println(x.getBettingPoint() + "/" + totalWinAmountDouble + "*" + remainingAmount +
-                    "= " + userShare);
+            if(result && (x.getStatus() == VotingResultStatus.WIN)){
 
-            x.setGetPoint((long)userShare);
+                userShare = Math.floor((x.getBettingPoint() / totalWinAmountDouble) * remainingAmount);
+                System.out.println(x.getBettingPoint() + "/" + totalWinAmountDouble + "*" + remainingAmount +
+                        "= " + userShare);
+            } else if (!result) {
 
-            System.out.println("setGetPoint = " + x.getGetPoint());
+                userShare = Math.floor(remainingAmount / count);
+            }
 
-            floorTotalAmount +=userShare;
+            // 베팅결과에 따른 포인트지급 (승리)
+            // LOSE 빼고 포인트 적립
+            if(!(x.getStatus() == VotingResultStatus.LOSE)){
 
-            System.out.println("floorTotalAmount = " + floorTotalAmount);
+                x.setGetPoint((long)userShare);
 
-            // 베팅결과에 따른 포인트지급  (승리)
-            Member member= memberRepository.findById(x.getIdx())
-                    .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND_USER));
+                System.out.println("setGetPoint = " + x.getGetPoint());
 
-            member.setPoint(member.getPoint() + (long)userShare);
+                floorTotalAmount +=userShare;
 
-            System.out.println("member.getPoint = " + member.getPoint());
+                System.out.println("floorTotalAmount = " + floorTotalAmount);
 
-            memberRepository.save(member);
 
-            //포인트 내역에 저장
-            pointService.create(x.getIdx(),(long)userShare,1);
+                Member member= memberRepository.findById(x.getIdx())
+                        .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND_USER));
+
+                member.setPoint(member.getPoint() + (long)userShare);
+
+                System.out.println("member.getPoint = " + member.getPoint());
+
+                //회원 잔여 포인트 수정
+                memberRepository.save(member);
+
+                //포인트 내역에 저장
+                pointService.create(x.getIdx(),(long)userShare,1);
+            }
+
         }
 
         // 버림 처리로 생긴 남은 포인트
