@@ -38,7 +38,7 @@ public class RepliesServiceImpl implements RepliesService {
 
             repliesRepository.save(replies);
             return true;
-        }else{
+        } else {
             throw new CustomException(CustomExceptionCode.NOT_VOTED);
         }
     }
@@ -96,8 +96,40 @@ public class RepliesServiceImpl implements RepliesService {
     }
 
     @Override
-    public boolean delete(Long repliesId) {
-        return false;
+    public boolean delete(Long repliesId, Long idx) {
+        Optional<Replies> repliesOpt = repliesRepository.findById(repliesId);
+
+        if (repliesOpt.isPresent()) {
+            Replies replies = repliesOpt.get();
+
+            // 댓글 작성자 ID와 현재 사용자 ID 비교
+            if (replies.getIdx().equals(idx)) {
+                repliesRepository.delete(replies);
+                return true;
+            } else {
+                throw new CustomException(CustomExceptionCode.UNAUTHORIZED_USER);
+            }
+
+        }
+        throw new CustomException(CustomExceptionCode.NOT_FOUND_REPLIES);
+
     }
+
+    @Override
+    public boolean update(Long repliesId, Long idx, RepliesDto dto) {
+        Replies replies = repliesRepository.findAllByRepliesIdAndIdx(repliesId, idx)
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND_REPLIES));
+
+        if (replies.getIdx().equals(idx)) {
+            replies.setComment(dto.getComment());
+            replies.setUpdatedAt(LocalDateTime.now());
+            repliesRepository.save(replies);
+            return true;
+        }
+        throw new RuntimeException();
+    }
+
+
+
 
 }

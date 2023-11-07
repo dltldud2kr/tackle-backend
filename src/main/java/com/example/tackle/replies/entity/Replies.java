@@ -24,6 +24,7 @@ public class Replies {
 
     private String comment;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
     private String createdMinutesAgo;
 //    private LocalDateTime updatedAt; // 수정 불가라니까 제외
 

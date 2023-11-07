@@ -31,7 +31,6 @@ public class RepliesController {
         }
     }
 
-
     @GetMapping("/info")
     public List<RepliesDto> getReplies(@RequestParam Long postId) {
         try {
@@ -53,13 +52,21 @@ public class RepliesController {
     }
 
     @DeleteMapping("/delete")
-    public ResultDTO deleteReply(@RequestParam Long repliesId) {
+    public ResultDTO delete(@RequestParam Long repliesId, Long idx) {
         try {
-            return ResultDTO.of(repliesService.delete(repliesId), ApiResponseCode.SUCCESS.getCode(), "댓글이 삭제 완료.", null);
+            return ResultDTO.of(repliesService.delete(repliesId, idx), ApiResponseCode.SUCCESS.getCode(), "댓글 삭제 완료.", null);
         } catch (CustomException e) {
             return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
         }
     }
 
+    @PostMapping("/update")
+    public ResultDTO update(@RequestParam Long repliesId, Long idx, @RequestBody RepliesDto dto){
+        try {
+            return ResultDTO.of(repliesService.update(repliesId, idx, dto), ApiResponseCode.SUCCESS.getCode(), "댓글 수정 완료.", null);
+        } catch (CustomException e) {
+            return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
+        }
+    }
 
 }
