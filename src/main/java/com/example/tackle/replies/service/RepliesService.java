@@ -15,5 +15,7 @@ public interface RepliesService {
 
     List<RepliesDto> getMyRepliesInfo(Long idx);
 
-    boolean delete(Long repliesId);
+    boolean delete(Long repliesId, Long idx);
+
+    boolean update(Long repliesId, Long idx, RepliesDto dto);
 }

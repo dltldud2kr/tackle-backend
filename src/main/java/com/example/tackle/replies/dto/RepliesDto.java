@@ -18,5 +18,6 @@ public class RepliesDto {
 
     private String comment;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
     private String createdMinutesAgo;
 }
