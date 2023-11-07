@@ -214,6 +214,7 @@ public class MemberServiceImpl implements MemberService {
                     .idx(memberIdx)
                     .point(50000000L)
                     .refreshToken(null)
+                    .role(0)
                     .nickname(nickname)
                     .regDt(LocalDateTime.now())
                     .build();

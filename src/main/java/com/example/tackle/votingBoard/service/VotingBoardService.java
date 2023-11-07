@@ -34,4 +34,5 @@ public interface VotingBoardService {
     boolean voting(VoteResultDto dto);
 
 
+    boolean delete(String email, Long postId);
 }

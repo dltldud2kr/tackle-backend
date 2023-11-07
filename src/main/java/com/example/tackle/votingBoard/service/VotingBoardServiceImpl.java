@@ -227,11 +227,12 @@ public class VotingBoardServiceImpl implements VotingBoardService {
 
             throw new CustomException(CustomExceptionCode.EXPIRED_VOTE);
         } else {
-
-
+            // 투표 기한이 지났는지 확인
             boolean result = updateVotingStatusIfNeeded(votingBoard);
 
+            // 투표자들 승패 결정
             voterWL(dto.getPostId());
+
             // 총 게시글 금액
             long totalAmount = votingBoard.getTotalBetAmount();
             if(result == false){
@@ -288,6 +289,30 @@ public class VotingBoardServiceImpl implements VotingBoardService {
 
 
         return true;
+    }
+
+    @Override
+    public boolean delete(String email, Long postId) {
+        if(!email.isEmpty()) {
+            Member member = memberRepository.findByEmail(email)
+                    .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND));
+
+            if(member.getRole() == 1){
+                if (votingBoardRepository.existsById(postId)) {
+
+                    votingBoardRepository.deleteById(postId);
+                    return true;
+                } else{
+                    throw new CustomException(CustomExceptionCode.NOT_FOUND);
+                }
+
+            } else {
+                throw new CustomException(CustomExceptionCode.UNAUTHORIZED_USER);
+            }
+        } else{
+            throw new CustomException(CustomExceptionCode.UNAUTHORIZED_USER);
+        }
+
     }
 
 

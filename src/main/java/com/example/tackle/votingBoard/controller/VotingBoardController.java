@@ -135,4 +135,26 @@ public class VotingBoardController {
         //test
     }
 
+
+    @DeleteMapping("/delete")
+    public ResultDTO delete(@RequestParam Long postId, Principal principal){
+        String email = "";
+        if (principal == null) {
+            // 사용자가 로그인하지 않은 경우에 대한 처리
+            email = "";
+
+        } else {
+            email = principal.getName(); // 사용자가 로그인한 경우 이메일 가져오기
+        }
+
+        try {
+            return ResultDTO.of(votingBoardService.delete(email,postId), ApiResponseCode.SUCCESS.getCode(), "삭제 성공",null);
+
+        } catch (CustomException e) {
+            return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
+        }
+
+    }
+
+
 }

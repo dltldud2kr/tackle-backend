@@ -30,8 +30,7 @@ public class Member implements UserDetails {
     private String userName;
     private String nickname;
     private Long point;
-    @Enumerated(EnumType.STRING)
-    private MemberRoles role;
+    private Integer role;   // 0 : USER 1 : ADMIN
     private LocalDateTime regDt;
     private LocalDateTime udtDt;
 
