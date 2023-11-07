@@ -70,7 +70,16 @@ public class VotingBoardController {
 
     @GetMapping("/info")
     public ResultDTO<VotingBoardResponseDto> getBoard(@RequestParam Long postId, Principal principal) {
-        String email = principal.getName();
+
+        String email = "";
+        if (principal == null) {
+            // 사용자가 로그인하지 않은 경우에 대한 처리 (예: 익명 사용자로 처리)
+            email = ""; // 또는 다른 기본 이메일 주소
+            // 또는 다른 처리 방법을 선택
+        } else {
+            email = principal.getName(); // 사용자가 로그인한 경우 이메일 가져오기
+        }
+
         System.out.println("id = " + email);
         try {
             VotingBoardResponseDto boardInfo = votingBoardService.getBoardInfo(postId, email);

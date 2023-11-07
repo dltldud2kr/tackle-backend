@@ -124,10 +124,21 @@ public class VotingBoardServiceImpl implements VotingBoardService {
     @Override
     public VotingBoardResponseDto getBoardInfo(Long postId, String email) {
 
-
-
+        System.out.println("in");
+        System.out.println(email);
         boolean isVoting = false;
-        String id = memberRepository.findByEmail(email).get().getIdx();
+        String id = "";
+        if(!email.isEmpty()){
+            id = memberRepository.findByEmail(email).get().getIdx();
+
+            //로그인이 된 회원의 경우 투표를 한 게시글이면 isVoting 을 true로 반환해줌으로써
+            // 투표화면이 아닌 투표비율이 뜨는 투표결과화면을 보여주게함.
+            Optional<VoteResult> voteResult = voteResultRepository.findByPostIdAndIdx(postId, id);
+            if (voteResult.isPresent()){
+                isVoting = true;
+            }
+        }
+
 
         Map<Long, Long> voteItemIdMap = new HashMap<>();
 
@@ -141,12 +152,6 @@ public class VotingBoardServiceImpl implements VotingBoardService {
             throw new CustomException(CustomExceptionCode.NOT_FOUND_ITEMS);
         }
 
-        //로그인이 된 회원의 경우 투표를 한 게시글이면 isVoting 을 true로 반환해줌으로써
-        // 투표화면이 아닌 투표비율이 뜨는 투표결과화면을 보여주게함.
-        Optional<VoteResult> voteResult = voteResultRepository.findByPostIdAndIdx(postId, id);
-        if (voteResult.isPresent()){
-            isVoting = true;
-        }
 
 
         //해당 게시글의 투표항목리스트를 가져옴
@@ -161,6 +166,7 @@ public class VotingBoardServiceImpl implements VotingBoardService {
 //            itemIds.add(voteItem.getItemId());
             itemContents.add(voteItem.getContent());
         }
+
         //투표 기한이 지났는지 확인
         updateVotingStatusIfNeeded(votingBoard);
 
@@ -216,32 +222,36 @@ public class VotingBoardServiceImpl implements VotingBoardService {
         }
         System.out.println("투표안함");
 
+        // 투표 기간이 지났는지 확인
+        if(votingBoard.getStatus() == VotingStatus.END) {
+
+            throw new CustomException(CustomExceptionCode.EXPIRED_VOTE);
+        } else {
+
+
+            boolean result = updateVotingStatusIfNeeded(votingBoard);
+
+            voterWL(dto.getPostId());
+            // 총 게시글 금액
+            long totalAmount = votingBoard.getTotalBetAmount();
+            if(result == false){
+                //투표 결과에 따른 포인트 지급
+                System.out.println("투표기한지남");
+                distributePoint(postId,totalAmount);
+
+                // 사용자들 투표에 승리했는지안했는지 확인. 2023-11-03
+
+
+                throw new CustomException(CustomExceptionCode.EXPIRED_VOTE);
+            }
+        }
+
+        // 베팅을 할 수 있는 포인트가 있는지 확인
         if (member.getPoint() < dto.getBettingPoint()){
             throw new CustomException(CustomExceptionCode.NOT_ENOUGH_POINTS);
         }
 
         System.out.println("돈있음");
-        // 총 게시글 금액
-        long totalAmount = votingBoard.getTotalBetAmount();
-
-
-
-
-        //투표기한이 지났는지 확인
-        boolean result = updateVotingStatusIfNeeded(votingBoard);
-
-        if(result == false){
-            //투표 결과에 따른 포인트 지급
-            System.out.println("투표기한지남");
-            distributePoint(postId,totalAmount);
-
-            // 사용자들 투표에 승리했는지안했는지 확인. 2023-11-03
-            test(dto.getIdx());
-
-            throw new CustomException(CustomExceptionCode.EXPIRED_VOTE);
-        }
-
-
 
 
         // 투표시 베팅한 금액 체크 10000, 50000, 100000 제한
@@ -269,11 +279,9 @@ public class VotingBoardServiceImpl implements VotingBoardService {
 
         //포인트 테이블 추가
         pointService.create(dto.getIdx(), dto.getBettingPoint(), 3);
-
         // 멤버 테이블 포인트 수정
         member.setPoint(member.getPoint() - dto.getBettingPoint());
         memberRepository.save(member);
-
         //투표 수 증가
         voteItems.setVoteCount(voteItems.getVoteCount() + 1);
         voteItemsRepository.save(voteItems);
@@ -283,27 +291,30 @@ public class VotingBoardServiceImpl implements VotingBoardService {
     }
 
 
-    void test (String memberIdx){
-        List<VoteResult> voteResultList = voteResultRepository.findAllByIdx(memberIdx);
+    void voterWL (Long boardId){
+
+        //해당 유저의 투표결과리스트를 들고온다 ?
+        //해당 postId와 같은 투표결과리스트를 들고오고 거기서 비교해야하는 거 아닌가?
+        List<VoteResult> voteResultList = voteResultRepository.findByPostId(boardId);
+
+
         for (VoteResult voteResult : voteResultList){
-
             Long postId = voteResult.getPostId();
-            VotingBoard votingBoard = votingBoardRepository.findById(postId)
-                    .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND));
-        List<VoteItems> voteItems3 = voteItemsRepository.findByPostIdOrderByVoteCountDesc(postId);
 
-        System.out.println(voteItems3.size());
-        for (VoteItems x : voteItems3){
+        List<VoteItems> voteItemsDesc = voteItemsRepository.findByPostIdOrderByVoteCountDesc(postId);
+
+        System.out.println(voteItemsDesc.size());
+        for (VoteItems x : voteItemsDesc){
             System.out.println(x.getVoteCount());
             System.out.println(x.getContent());
         }
 
-        if (!voteItems3.isEmpty()) {
-            Long minCount = voteItems3.get(0).getVoteCount();
+        if (!voteItemsDesc.isEmpty()) {
+            Long minCount = voteItemsDesc.get(0).getVoteCount();
             List<VoteItems> minCountItems = new ArrayList<>();
 
-            // 투표가 동률일 때
-            for (VoteItems item : voteItems3) {
+            // 투표가 동률일 때  ( 선택지가 3개인경우 2개만 동률이면 그에 대한 로직도 만들어야함.
+            for (VoteItems item : voteItemsDesc) {
                 if (item.getVoteCount() == minCount) {
                     minCountItems.add(item);
                 } else if (item.getVoteCount() < minCount) {
@@ -345,10 +356,12 @@ public class VotingBoardServiceImpl implements VotingBoardService {
 
 
     // 투표 기간이 지났으면 투표상태를 END로 변경 로직
-    private boolean updateVotingStatusIfNeeded(VotingBoard votingBoard) {
+    public boolean updateVotingStatusIfNeeded(VotingBoard votingBoard) {
+
         LocalDateTime endDate = votingBoard.getEndDate();
         LocalDateTime currentDateTime = LocalDateTime.now();
 
+        // 기간이 만료된 경우 투표상태를 END 로 변경
         if (endDate != null && endDate.isBefore(currentDateTime)) {
             votingBoard.setStatus(VotingStatus.END);
             votingBoardRepository.save(votingBoard);
@@ -388,25 +401,41 @@ public class VotingBoardServiceImpl implements VotingBoardService {
         for(VoteResult x : voteResultList){
             // 승리한 사람만 필터링
             if (x.getStatus() == VotingResultStatus.WIN){
+                System.out.println("유저이름 : " + x.getIdx());
+                System.out.println("유저 상태 : " + x.getStatus());
+                System.out.println("로직상태확인" + (x.getStatus() == VotingResultStatus.WIN));
                 totalWinAmount += x.getBettingPoint();
+                System.out.println("totalWinAmount = " + totalAmount);
             }
 
         }
         // double 형태로 변경
         double totalWinAmountDouble = totalWinAmount;
+        System.out.println("totalWinAmountDouble(더블형태로변경) = " + totalWinAmountDouble);
 
         //버림 처리 한 총 금액
         double floorTotalAmount = 0;
         for(VoteResult x : voteResultList){
             double userShare = Math.floor((x.getBettingPoint() / totalWinAmountDouble) * remainingAmount);
+            System.out.println(x.getBettingPoint() + "/" + totalWinAmountDouble + "*" + remainingAmount +
+                    "= " + userShare);
+
             x.setGetPoint((long)userShare);
+
+            System.out.println("setGetPoint = " + x.getGetPoint());
+
             floorTotalAmount +=userShare;
+
+            System.out.println("floorTotalAmount = " + floorTotalAmount);
 
             // 베팅결과에 따른 포인트지급  (승리)
             Member member= memberRepository.findById(x.getIdx())
                     .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND_USER));
 
             member.setPoint(member.getPoint() + (long)userShare);
+
+            System.out.println("member.getPoint = " + member.getPoint());
+
             memberRepository.save(member);
 
             //포인트 내역에 저장
@@ -416,8 +445,12 @@ public class VotingBoardServiceImpl implements VotingBoardService {
         // 버림 처리로 생긴 남은 포인트
         double floorRemainPoint = netPrize -floorTotalAmount;
 
+        System.out.println("floorRemainPoint = " + floorRemainPoint);
+
         // 최종 Tackle 이 얻은 포인트
         Long finallyPoint = (long) (commission + floorRemainPoint);
+
+        System.out.println("finallyPoint = " + finallyPoint);
 
         revenueService.create(finallyPoint,0);
 
