@@ -15,7 +15,7 @@ public interface VotingBoardService {
      * @param dto
      * @return
      */
-    boolean create (VotingBoardDto dto);
+    Long create (VotingBoardDto dto);
 
     /**
      * 게시글 리스트 조회

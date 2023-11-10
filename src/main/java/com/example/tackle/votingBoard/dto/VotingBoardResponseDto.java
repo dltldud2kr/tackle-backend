@@ -1,6 +1,7 @@
 package com.example.tackle.votingBoard.dto;
 
 import com.example.tackle._enum.VotingResultStatus;
+import com.example.tackle._enum.VotingStatus;
 import com.example.tackle.voteItems.entity.VoteItems;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,9 +25,9 @@ public class VotingBoardResponseDto {
     private Long categoryId;
     private String title;
     private String content;
-    private String status;
+    private VotingStatus status;
     private String votingImgUrl;
-    private VotingResultStatus votingResult;
+    private Long votingResult;
     private Long bettingAmount;
     private byte votingDeadLine;
     private List<String> voteItemsContent;

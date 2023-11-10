@@ -49,8 +49,8 @@ public class VotingBoardController {
 
         try {
             // 게시글작성, 투표항목 로직 한 번에 처리
-            votingBoardService.create(dto);
-            return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "게시글 작성완료.",null);
+            Long postId = votingBoardService.create(dto);
+            return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "게시글 작성완료.",postId);
         } catch (CustomException e) {
             return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
         }

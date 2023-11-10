@@ -23,21 +23,20 @@ public class VoteItemsServiceImpl implements VoteItemsService {
     private final VotingBoardRepository votingBoardRepository;
 
     @Transactional
-    public boolean create(Long postId, VotingBoardDto dto) {
+    public boolean create(Long postId, List<String> items) {
 
         votingBoardRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND));
 
-        List<String > list = dto.getVoteItemsContent();
 
-        if(list.size() < 2){        // 2개 이상의 투표항목을 선택해야함.
+        if(items.size() < 2){        // 2개 이상의 투표항목을 선택해야함.
             throw new CustomException(CustomExceptionCode.NOT_ENOUGH_ITEMS);
         }
 
-        for(String items : list){
+        for(String ListItems : items){
             VoteItems voteItems = VoteItems.builder()
                     .voteCount(0L)
-                    .content(items)
+                    .content(ListItems)
                     .postId(postId)
                     .build();
             voteItemsRepository.save(voteItems);
