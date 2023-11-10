@@ -1,8 +1,10 @@
 package com.example.tackle.member.service;
 
 import com.example.tackle.dto.TokenDto;
+import com.example.tackle.member.entity.Member;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -30,5 +32,12 @@ public interface MemberService {
      * @return
      */
     public Map<String,Object> getUserInfo(String access_token);
+
+
+    /**
+     * @param access_token
+     * @return
+     */
+    List<Member> getMemberList(String access_token);
 
 }

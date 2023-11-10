@@ -14,8 +14,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -135,7 +140,27 @@ public class MemberController {
     }
 
 
+    // 관리자 페이지 회원 리스트 조회
+    @GetMapping("/member/list")
+    public ResponseEntity<List<Member>> getMemberList(Principal principal) {
+        String email = "";
+        if (principal == null) {
+            // 사용자가 로그인하지 않은 경우에 대한 처리
+            email = "";
 
+        } else {
+            email = principal.getName(); // 사용자가 로그인한 경우 이메일 가져오기
+        }
+        try {
+            List<Member> members = memberService.getMemberList(email);
+            return new ResponseEntity<>(members, HttpStatus.OK);
+
+        } catch (CustomException e) {
+            return null;
+        }
+
+
+    }
 
 
 

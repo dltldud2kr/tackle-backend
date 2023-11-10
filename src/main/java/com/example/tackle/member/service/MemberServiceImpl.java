@@ -23,6 +23,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -267,6 +268,23 @@ public class MemberServiceImpl implements MemberService {
         // 비어있는 경우 예외 처리 또는 기본값을 반환하는 로직 추가
 
         return byEmail.orElse(null);
+    }
+
+
+    // 관리자 회원 리스트
+    public List<Member> getMemberList(String access_token) {
+        if (!access_token.isEmpty()) {
+            Member member = memberRepository.findByEmail(access_token)
+                    .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND));
+
+            if (member.getRole() == 1) {
+                return memberRepository.findAll();
+            } else {
+                throw new CustomException(CustomExceptionCode.UNAUTHORIZED_USER);
+            }
+        } else {
+            throw new CustomException(CustomExceptionCode.UNAUTHORIZED_USER);
+        }
     }
 
 }
