@@ -14,8 +14,8 @@ import com.example.tackle.revenue.RevenueService;
 import com.example.tackle.voteItems.entity.VoteItems;
 import com.example.tackle.voteItems.repository.VoteItemsRepository;
 import com.example.tackle.voteItems.service.VoteItemsService;
-import com.example.tackle.voteResult.entity.VoteResult;
 import com.example.tackle.voteResult.dto.VoteResultDto;
+import com.example.tackle.voteResult.entity.VoteResult;
 import com.example.tackle.voteResult.repository.VoteResultRepository;
 import com.example.tackle.votingBoard.dto.VotingBoardDto;
 import com.example.tackle.votingBoard.dto.VotingBoardResponseDto;
@@ -51,7 +51,7 @@ public class VotingBoardServiceImpl implements VotingBoardService {
     private static final Long BOARD_CREATE_COST = -1000L;
 
     @Transactional
-    public boolean create(VotingBoardDto dto) {
+    public Long create(VotingBoardDto dto) {
 
 
         Member member = memberRepository.findById(dto.getIdx())
@@ -79,7 +79,6 @@ public class VotingBoardServiceImpl implements VotingBoardService {
                     .totalBetAmount(0L)
                     .content(dto.getContent())
                     .createdAt(currentDateTime)
-                    .votingResult(VotingResultStatus.ING)
                     .endDate(endDate)
                     .idx(dto.getIdx())
                     .votingImgUrl(dto.getVotingImgUrl())
@@ -99,21 +98,24 @@ public class VotingBoardServiceImpl implements VotingBoardService {
 
             pointRepository.save(pointCreate);
 
+            revenueService.create(-BOARD_CREATE_COST,1);
+
 
             Long savedPostId = savedVotingBoard.getPostId();
 
             // 투표 항목 로직 (선택지 2개이상 선택)
-            voteItemsService.create(savedPostId,dto);
+            voteItemsService.create(savedPostId,dto.getVoteItemsContent());
 
 
 
-        return true;
+        return savedPostId;
     }
 
     @Override
     public List<VotingBoardDto> getBoardList() {
 
         List<VotingBoard> votingBoard = votingBoardRepository.findAll();
+
 
         List<VotingBoardDto> votingBoardDtoList = of(votingBoard);
 
@@ -154,11 +156,12 @@ public class VotingBoardServiceImpl implements VotingBoardService {
         if (!(votingBoard.getStatus() == VotingStatus.END)){
             //게시글 상태 업데이트
             boolean result = updateVotingStatusIfNeeded(votingBoard);
-            //투표자 승패 업데이트
-            voterWL(postId);
-            long totalAmount = votingBoard.getTotalBetAmount();
+
 
             if(result == false){
+                //투표자 승패 업데이트
+                voterWL(postId);
+                long totalAmount = votingBoard.getTotalBetAmount();
                 // 베팅한 사람들에게 포인트 분배
                 distributePoint(postId,totalAmount);
             }
@@ -198,7 +201,7 @@ public class VotingBoardServiceImpl implements VotingBoardService {
                 .endDate(votingBoard.getEndDate())
                 .postId(votingBoard.getPostId())
                 .votingResult(votingBoard.getVotingResult())
-                .status(votingBoard.getStatus().toString())
+                .status(votingBoard.getStatus())
                 .isVoting(isVoting)
                 .votingImgUrl(votingBoard.getVotingImgUrl())
                 .build();
@@ -242,13 +245,15 @@ public class VotingBoardServiceImpl implements VotingBoardService {
             // 투표 기한이 지났는지 확인
             boolean result = updateVotingStatusIfNeeded(votingBoard);
 
-            // 투표자들 승패 결정
-            voterWL(dto.getPostId());
 
-            // 총 게시글 금액
-            long totalAmount = votingBoard.getTotalBetAmount();
+            //기한이 지났으면.
             if(result == false){
 
+                // 투표자들 승패 결정
+                voterWL(dto.getPostId());
+
+                // 총 게시글 금액
+                long totalAmount = votingBoard.getTotalBetAmount();
                 //투표 결과에 따른 포인트 지급
                 distributePoint(postId,totalAmount);
 
@@ -277,7 +282,7 @@ public class VotingBoardServiceImpl implements VotingBoardService {
                 .bettingPoint(dto.getBettingPoint())    // 10000, 50000 , 100000 제한  Exception 필요
                 .itemId(dto.getItemId())
                 .postId(dto.getPostId())
-                .status(votingBoard.getVotingResult())
+                .status(VotingResultStatus.ING)
                 .createdAt(LocalDateTime.now())
                 .getPoint(0L)
                 .idx(dto.getIdx())
@@ -326,53 +331,59 @@ public class VotingBoardServiceImpl implements VotingBoardService {
     public void voterWL (Long boardId){
 
         List<VoteResult> voteResultList = voteResultRepository.findByPostId(boardId);
+        Optional<VotingBoard> votingBoard = votingBoardRepository.findById(boardId);
 
 
         for (VoteResult voteResult : voteResultList){
-            Long postId = voteResult.getPostId();
+//            Long postId = voteResult.getPostId();
+            List<VoteItems> voteItemsDesc = voteItemsRepository.findByPostIdOrderByVoteCountDesc(boardId);
 
-        List<VoteItems> voteItemsDesc = voteItemsRepository.findByPostIdOrderByVoteCountDesc(postId);
+            if (!voteItemsDesc.isEmpty()) {
+                Long minCount = voteItemsDesc.get(0).getVoteCount();
+                List<VoteItems> minCountItems = new ArrayList<>();
 
-        if (!voteItemsDesc.isEmpty()) {
-            Long minCount = voteItemsDesc.get(0).getVoteCount();
-            List<VoteItems> minCountItems = new ArrayList<>();
-
-            // 투표가 동률일 때  ( 선택지가 3개인경우 2개만 동률이면 그에 대한 로직도 만들어야함.
-            for (VoteItems item : voteItemsDesc) {
-                if (item.getVoteCount() == minCount) {
-                    minCountItems.add(item);
-                } else if (item.getVoteCount() < minCount) {
-                    minCount = item.getVoteCount();
-                    minCountItems.clear();
-                    minCountItems.add(item);
+                // 투표가 동률일 때  ( 선택지가 3개인경우 2개만 동률이면 그에 대한 로직도 만들어야함.
+                for (VoteItems item : voteItemsDesc) {
+                    if (item.getVoteCount() == minCount) {
+                        minCountItems.add(item);
+                    } else if (item.getVoteCount() < minCount) {
+                        minCount = item.getVoteCount();
+                        minCountItems.clear();
+                        minCountItems.add(item);
+                    }
                 }
-            }
 
-            // minCountItems 리스트에는 가장 적은 카운트를 가진 VoteItems 객체들이 저장.
-            // 이 리스트는 동일한 카운트를 가진 항목들을 모두 포함.
+                // minCountItems 리스트에는 가장 적은 카운트를 가진 VoteItems 객체들이 저장.
+                // 이 리스트는 동일한 카운트를 가진 항목들을 모두 포함.
 
-            if (minCountItems.size() == 1) {
-                // 동일한 카운트가 없는 경우 다른 메소드를 실행
-                VoteItems voteItems2 = minCountItems.get(0);
+                if (minCountItems.size() == 1) {
+                    // 동일한 카운트가 없는 경우 다른 메소드를 실행
+                    VoteItems voteItems2 = minCountItems.get(0);
 
-                Long result1 = voteItems2.getItemId();
-                Long result2 = voteResult.getItemId();
+                    Long voteItemResult = voteItems2.getItemId();
+                    Long userVoteResult = voteResult.getItemId();
 
-                if (result1.equals(result2)) {
-                    voteResult.setStatus(VotingResultStatus.LOSE);
+                    votingBoard.get().setVotingResult(voteItemResult);
+
+                    if (voteItemResult.equals(userVoteResult)) {
+                        voteResult.setStatus(VotingResultStatus.LOSE);
+                    } else {
+                        voteResult.setStatus(VotingResultStatus.WIN);
+                    }
                 } else {
-                    voteResult.setStatus(VotingResultStatus.WIN);
+                    // 동일한 카운트가 있는 경우 다른 처리를 수행하거나 필요한 로직을 추가
+                    // minCountItems에는 동일한 카운트를 가진 항목들이 포함됨.
+                    // 다른 처리를 수행하는 로직을 여기에 추가.
+                    voteResult.setStatus(VotingResultStatus.DRAW);
                 }
+
+                // 엔터티 상태를 변경한 후 저장
+                voteResultRepository.save(voteResult);
+
             } else {
-                // 동일한 카운트가 있는 경우 다른 처리를 수행하거나 필요한 로직을 추가
-                // minCountItems에는 동일한 카운트를 가진 항목들이 포함됨.
-                // 다른 처리를 수행하는 로직을 여기에 추가.
-                voteResult.setStatus(VotingResultStatus.DRAW);
+                throw new CustomException(CustomExceptionCode.NOT_FOUND,"투표항목이 없습니다.");
             }
-        } else {
-            throw new CustomException(CustomExceptionCode.NOT_FOUND,"투표항목이 없습니다.");
         }
-    }
     }
 
 
@@ -385,7 +396,9 @@ public class VotingBoardServiceImpl implements VotingBoardService {
         // 기간이 만료된 경우 투표상태를 END 로 변경
         if (endDate != null && endDate.isBefore(currentDateTime)) {
             votingBoard.setStatus(VotingStatus.END);
+            System.out.println("END로 설정 ");
             votingBoardRepository.save(votingBoard);
+            System.out.println("db에 저장");
 
             return false;
         }
@@ -501,7 +514,7 @@ public class VotingBoardServiceImpl implements VotingBoardService {
 
                 .categoryId(votingBoard.getCategoryId())
                 .votingImgUrl(votingBoard.getVotingImgUrl())
-                .status(votingBoard.getStatus().toString())
+                .status(votingBoard.getStatus())
                 .votingResult(votingBoard.getVotingResult())
                 .content(votingBoard.getContent())
                 .title(votingBoard.getTitle())

@@ -26,8 +26,7 @@ public class VotingBoard {
     @Enumerated(EnumType.STRING)
     private VotingStatus status;      // 진행중, 종료 enum 타입 고려해볼것
     private String votingImgUrl;
-    @Enumerated(EnumType.STRING)
-    private VotingResultStatus votingResult;
+    private Long votingResult;
     private Long totalBetAmount;
     private byte votingDeadLine;
 
