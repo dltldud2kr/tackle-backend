@@ -12,20 +12,26 @@ public interface VotingBoardService {
 
     /**
      * 게시글 작성
+     *
      * @param dto
      * @return
      */
-    Long create (VotingBoardDto dto);
+    Long create(VotingBoardDto dto);
+
+
 
     /**
      * 게시글 리스트 조회
+     *
      * @return
      */
-
     List<VotingBoardDto> getBoardList();
+
+    List<VotingBoardDto> getBoardListByCategory(Long categoryId);
 
     /**
      * 게시글 조회
+     *
      * @param boardId
      * @return
      */
@@ -35,4 +41,7 @@ public interface VotingBoardService {
 
 
     boolean delete(String email, Long postId);
+
+
+
 }

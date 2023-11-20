@@ -1,7 +1,6 @@
 package com.example.tackle.member.service;
 
 import com.example.tackle.dto.TokenDto;
-import com.example.tackle.member.dto.MemberDto;
 import com.example.tackle.member.entity.Member;
 import org.springframework.stereotype.Service;
 
@@ -41,11 +40,5 @@ public interface MemberService {
      */
     List<Member> getMemberList(String access_token);
 
-
-    /**
-     *
-     * @param access_token
-     * @return
-     */
-    MemberDto getMemberInfo(String access_token);
+    boolean update(String idx, Member dto);
 }
