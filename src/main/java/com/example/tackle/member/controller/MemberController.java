@@ -1,9 +1,11 @@
 package com.example.tackle.member.controller;
 
 import com.example.tackle._enum.ApiResponseCode;
+import com.example.tackle._enum.CustomExceptionCode;
 import com.example.tackle.dto.ResultDTO;
 import com.example.tackle.dto.TokenDto;
 import com.example.tackle.exception.CustomException;
+import com.example.tackle.member.dto.MemberDto;
 import com.example.tackle.member.entity.Member;
 import com.example.tackle.member.dto.JoinRequestDto;
 import com.example.tackle.member.repository.MemberRepository;
@@ -16,7 +18,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -113,6 +114,13 @@ public class MemberController {
     }
 
 
+
+    @Operation(summary = "관리자 회원 리스트 조회", description = "회원의 데이터 반환" +
+            "")
+
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+    })
     // 관리자 페이지 회원 리스트 조회
     @GetMapping("/member/list")
     public ResponseEntity<List<Member>> getMemberList(Principal principal) {
@@ -135,6 +143,37 @@ public class MemberController {
 
     }
 
+    @Operation(summary = "회원정보 조회", description = "회원의 데이터 반환" +
+            "")
 
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+    })
+
+    // 회원 포인트, 가입일, 닉네임 조회 ( 마이페이지 Function )
+    // 엑세스토큰 header에 넣어서 GET요청
+    @GetMapping("/member/info")
+    public ResponseEntity<MemberDto> getMemberInfo(Principal principal) {
+        // 토큰에서 이메일 추출
+        String access_token = "";
+        if (principal == null) {
+            // 사용자가 로그인하지 않은 경우에 대한 처리
+            access_token = "";
+
+        } else {
+            access_token = principal.getName(); // 사용자가 로그인한 경우 이메일 가져오기
+        }
+
+        // 이메일로 멤버 정보 가져오기
+        MemberDto memberDto = memberService.getMemberInfo(access_token);
+
+        // 멤버 정보가 없는 경우 예외 처리
+        if (memberDto == null) {
+            throw new CustomException(CustomExceptionCode.NOT_FOUND);
+        }
+
+        // 멤버 정보 반환
+        return ResponseEntity.ok(memberDto);
+    }
 
 }

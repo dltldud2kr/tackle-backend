@@ -1,5 +1,6 @@
 package com.example.tackle.member.service;
 
+import com.example.tackle.member.dto.MemberDto;
 import com.example.tackle.member.repository.MemberRepository;
 import com.example.tackle._enum.CustomExceptionCode;
 import com.example.tackle.auth.JwtTokenProvider;
@@ -93,6 +94,8 @@ public class MemberServiceImpl implements MemberService {
             throw new CustomException(CustomExceptionCode.EXPIRED_JWT);
         }
     }
+
+
 
     @Override
     public String getReturnAccessToken(String code) {
@@ -287,4 +290,20 @@ public class MemberServiceImpl implements MemberService {
         }
     }
 
+    // 회원 정보 API
+    public MemberDto getMemberInfo(String access_token) {
+        if (!access_token.isEmpty()) {
+            Member member = memberRepository.findByEmail(access_token)
+                    .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND));
+
+            // Entity를 Dto로 변환
+            MemberDto memberDto = new MemberDto();
+            memberDto.setPoint(member.getPoint());
+            memberDto.setNickname(member.getNickname());
+            memberDto.setRegAt(member.getRegDt());
+            return memberDto;
+        } else {
+            throw new CustomException(CustomExceptionCode.NOT_FOUND);
+        }
+    }
 }
