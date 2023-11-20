@@ -24,7 +24,6 @@ public class Member implements UserDetails {
     @Id
     private String idx;
 
-
     private String email;
     private String refreshToken; //리프레쉬 토큰
     private String userName;

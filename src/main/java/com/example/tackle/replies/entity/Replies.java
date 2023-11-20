@@ -19,7 +19,7 @@ public class Replies {
     @GeneratedValue
     private Long repliesId;
 
-    private Long idx; // 카카오 고유번호 12자리
+    private String idx; // 카카오 고유번호 12자리
     private Long postId;
 
     private String comment;
