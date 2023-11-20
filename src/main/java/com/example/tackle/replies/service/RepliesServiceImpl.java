@@ -90,13 +90,13 @@ public class RepliesServiceImpl implements RepliesService {
     }
 
     @Override
-    public List<RepliesDto> getMyRepliesInfo(Long idx) {
+    public List<RepliesDto> getMyRepliesInfo(String idx) {
         List<Replies> myRepliesList = repliesRepository.findAllByIdx(idx);
         return RepliesDtoList(myRepliesList);
     }
 
     @Override
-    public boolean delete(Long repliesId, Long idx) {
+    public boolean delete(Long repliesId, String idx) {
         Optional<Replies> repliesOpt = repliesRepository.findById(repliesId);
 
         if (repliesOpt.isPresent()) {
@@ -116,7 +116,7 @@ public class RepliesServiceImpl implements RepliesService {
     }
 
     @Override
-    public boolean update(Long repliesId, Long idx, RepliesDto dto) {
+    public boolean update(Long repliesId, String idx, RepliesDto dto) {
         Replies replies = repliesRepository.findAllByRepliesIdAndIdx(repliesId, idx)
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND_REPLIES));
 
