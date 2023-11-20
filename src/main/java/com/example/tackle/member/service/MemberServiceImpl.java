@@ -290,7 +290,7 @@ public class MemberServiceImpl implements MemberService {
         }
     }
 
-
+    // 회원 정보 API
     public MemberDto getMemberInfo(String access_token) {
         if (!access_token.isEmpty()) {
             Member member = memberRepository.findByEmail(access_token)
