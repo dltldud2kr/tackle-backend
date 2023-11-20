@@ -1,4 +1,4 @@
-package com.example.tackle.category;
+package com.example.tackle.category.entity;
 
 import lombok.*;
 
@@ -19,4 +19,6 @@ public class Category {
     private Long categoryId;
 
     private String categoryName;
+
+
 }

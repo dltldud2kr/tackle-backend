@@ -13,9 +13,9 @@ public interface RepliesService {
 
     List<RepliesDto> getRepliesInfo(Long postId);
 
-    List<RepliesDto> getMyRepliesInfo(Long idx);
+    List<RepliesDto> getMyRepliesInfo(String idx);
 
-    boolean delete(Long repliesId, Long idx);
+    boolean delete(Long repliesId, String idx);
 
-    boolean update(Long repliesId, Long idx, RepliesDto dto);
+    boolean update(Long repliesId, String idx, RepliesDto dto);
 }

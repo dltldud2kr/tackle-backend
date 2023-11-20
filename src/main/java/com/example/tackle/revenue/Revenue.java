@@ -19,6 +19,6 @@ public class Revenue {
     @GeneratedValue
     private Long revenueId;
     private Long earningPoint;
-    private Integer earningReason; // 0. 투표 수수료
+    private Integer earningReason; // 0. 투표 수수료 1. 게시글 작성
     private LocalDateTime created_at;
 }
