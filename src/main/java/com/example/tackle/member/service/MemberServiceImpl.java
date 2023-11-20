@@ -115,7 +115,7 @@ public class MemberServiceImpl implements MemberService {
             sb.append("grant_type=authorization_code");
 //           sb.append("&client_id=b22a0873d0ccefbc5f331106fa7b9287");  // REST API 키
             sb.append("&client_id=ccf25614050bf5afb0bf4c82541cebb8");  // REST API 키
-            sb.append("&redirect_uri=http://localhost:3000/auth/kakao/callback"); // 앱 CALLBACK 경로
+            sb.append("&redirect_uri=http://localhost:8080/auth/kakao/callback"); // 앱 CALLBACK 경로
             sb.append("&code=" + code);
             bw.write(sb.toString());
             bw.flush();
