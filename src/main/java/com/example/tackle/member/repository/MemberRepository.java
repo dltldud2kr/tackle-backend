@@ -18,5 +18,7 @@ public interface MemberRepository extends JpaRepository<Member, String> {
     void updateRefreshToken(@Param("email") String email, @Param("refreshToken") String refreshToken);
 
     Optional<Member> findByIdx(String idx);
+
+    boolean existsByNickname(String nickname);
 }
 

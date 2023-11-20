@@ -100,11 +100,12 @@ public class VotingBoardController {
     })
 
     @GetMapping("/list")
-    public List<VotingBoardDto> boardList() {
-
-        List<VotingBoardDto> list = votingBoardService.getBoardList();
-
-        return list;
+    public List<VotingBoardDto> boardList(@RequestParam(required = false) Long categoryId) {
+        if (categoryId != null) {
+            return votingBoardService.getBoardListByCategory(categoryId);
+        } else {
+            return votingBoardService.getBoardList();
+        }
     }
 
     @Operation(summary = "게시글 투표", description = "" +

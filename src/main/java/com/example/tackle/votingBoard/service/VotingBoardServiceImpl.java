@@ -113,16 +113,28 @@ public class VotingBoardServiceImpl implements VotingBoardService {
     }
 
     @Override
-    public List<VotingBoardDto> getBoardList() {
-
-        List<VotingBoard> votingBoard = votingBoardRepository.findAll();
-
-
-        List<VotingBoardDto> votingBoardDtoList = of(votingBoard);
-
-
-        return votingBoardDtoList;
+    public List<VotingBoardDto> getBoardListByCategory(Long categoryId) {
+        if (categoryId != null) {
+            // categoryId가 제공된 경우 해당 카테고리의 게시글만 조회
+            return getBoardListByCategoryId(categoryId);
+        } else {
+            // categoryId가 제공되지 않은 경우 모든 게시글 조회
+            return getBoardList();
+        }
     }
+
+    private List<VotingBoardDto> getBoardListByCategoryId(Long categoryId) {
+        List<VotingBoard> votingBoard = votingBoardRepository.findByCategoryId(categoryId);
+        return of(votingBoard);
+    }
+
+    @Override
+    public List<VotingBoardDto> getBoardList() {
+        List<VotingBoard> votingBoard = votingBoardRepository.findAll();
+        return of(votingBoard);
+    }
+
+
 
     @Override
     public VotingBoardResponseDto getBoardInfo(Long postId, String email) {
@@ -332,6 +344,7 @@ public class VotingBoardServiceImpl implements VotingBoardService {
     }
 
 
+
     // 투표자 승패 업데이트 메서드
     public void voterWL (Long boardId){
 
@@ -410,9 +423,9 @@ public class VotingBoardServiceImpl implements VotingBoardService {
         return true;
     }
 
-    // 투표시 베팅한 금액 체크 1000, 5000, 10000 제한
+    // 투표시 베팅한 금액 체크 10000, 50000, 100000 제한
     public boolean isBettingAmountValid(Long bettingPoint) {
-        return bettingPoint == 1000 || bettingPoint == 5000 || bettingPoint == 10000;
+        return bettingPoint == 10000 || bettingPoint == 50000 || bettingPoint == 100000;
     }
 
 

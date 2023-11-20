@@ -95,8 +95,6 @@ public class MemberServiceImpl implements MemberService {
         }
     }
 
-
-
     @Override
     public String getReturnAccessToken(String code) {
         String access_token = "";
@@ -290,20 +288,10 @@ public class MemberServiceImpl implements MemberService {
         }
     }
 
-    // 회원 정보 API
-    public MemberDto getMemberInfo(String access_token) {
-        if (!access_token.isEmpty()) {
-            Member member = memberRepository.findByEmail(access_token)
-                    .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND));
-
-            // Entity를 Dto로 변환
-            MemberDto memberDto = new MemberDto();
-            memberDto.setPoint(member.getPoint());
-            memberDto.setNickname(member.getNickname());
-            memberDto.setRegAt(member.getRegDt());
-            return memberDto;
-        } else {
-            throw new CustomException(CustomExceptionCode.NOT_FOUND);
-        }
+    @Override
+    public boolean update(String idx, Member dto) {
+        return false;
     }
+
+
 }

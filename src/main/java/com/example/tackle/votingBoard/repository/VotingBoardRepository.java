@@ -15,5 +15,5 @@ public interface VotingBoardRepository extends JpaRepository<VotingBoard, Long> 
     List<VotingBoard> findExpiredVotingBoards(LocalDateTime currentDateTime);
 
 
-
+    List<VotingBoard> findByCategoryId(Long categoryId);
 }
