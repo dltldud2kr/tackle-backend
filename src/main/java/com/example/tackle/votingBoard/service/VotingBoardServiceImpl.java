@@ -405,9 +405,9 @@ public class VotingBoardServiceImpl implements VotingBoardService {
         return true;
     }
 
-    // 투표시 베팅한 금액 체크 10000, 50000, 100000 제한
+    // 투표시 베팅한 금액 체크 1000, 5000, 10000 제한
     public boolean isBettingAmountValid(Long bettingPoint) {
-        return bettingPoint == 10000 || bettingPoint == 50000 || bettingPoint == 100000;
+        return bettingPoint == 1000 || bettingPoint == 5000 || bettingPoint == 10000;
     }
 
 

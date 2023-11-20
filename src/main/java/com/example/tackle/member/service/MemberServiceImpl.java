@@ -1,5 +1,6 @@
 package com.example.tackle.member.service;
 
+import com.example.tackle.member.dto.MemberDto;
 import com.example.tackle.member.repository.MemberRepository;
 import com.example.tackle._enum.CustomExceptionCode;
 import com.example.tackle.auth.JwtTokenProvider;
@@ -94,6 +95,8 @@ public class MemberServiceImpl implements MemberService {
         }
     }
 
+
+
     @Override
     public String getReturnAccessToken(String code) {
         String access_token = "";
@@ -114,7 +117,7 @@ public class MemberServiceImpl implements MemberService {
             sb.append("grant_type=authorization_code");
 //           sb.append("&client_id=b22a0873d0ccefbc5f331106fa7b9287");  // REST API 키
             sb.append("&client_id=ccf25614050bf5afb0bf4c82541cebb8");  // REST API 키
-            sb.append("&redirect_uri=http://localhost:8080/auth/kakao/callback"); // 앱 CALLBACK 경로
+            sb.append("&redirect_uri=http://localhost:3000/auth/kakao/callback"); // 앱 CALLBACK 경로
             sb.append("&code=" + code);
             bw.write(sb.toString());
             bw.flush();
@@ -287,4 +290,20 @@ public class MemberServiceImpl implements MemberService {
         }
     }
 
+
+    public MemberDto getMemberInfo(String access_token) {
+        if (!access_token.isEmpty()) {
+            Member member = memberRepository.findByEmail(access_token)
+                    .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND));
+
+            // Entity를 Dto로 변환
+            MemberDto memberDto = new MemberDto();
+            memberDto.setPoint(member.getPoint());
+            memberDto.setNickname(member.getNickname());
+            memberDto.setRegAt(member.getRegDt());
+            return memberDto;
+        } else {
+            throw new CustomException(CustomExceptionCode.NOT_FOUND);
+        }
+    }
 }
