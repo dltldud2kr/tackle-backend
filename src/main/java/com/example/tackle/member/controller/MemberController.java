@@ -1,15 +1,14 @@
 package com.example.tackle.member.controller;
 
 import com.example.tackle._enum.ApiResponseCode;
-import com.example.tackle._enum.CustomExceptionCode;
 import com.example.tackle.dto.ResultDTO;
 import com.example.tackle.dto.TokenDto;
 import com.example.tackle.exception.CustomException;
-import com.example.tackle.member.dto.MemberDto;
 import com.example.tackle.member.entity.Member;
 import com.example.tackle.member.dto.JoinRequestDto;
 import com.example.tackle.member.repository.MemberRepository;
 import com.example.tackle.member.service.MemberService;
+import com.example.tackle.replies.dto.RepliesDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -18,8 +17,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.xml.transform.Result;
 import java.security.Principal;
 import java.util.List;
 import java.util.Map;
@@ -62,7 +63,7 @@ public class MemberController {
     @Operation(summary = "카카오 인가코드 발급 및 로그인, 회원가입", description = "로그인 및 회원가입" +
             "임시 회원가입을 요청합니다." +
             "\n### HTTP STATUS 에 따른 조회 결과" +
-            "\n- 201: 회원가입 성공 "+
+            "\n- 201: 회원가입 성공 " +
             "\n- 500: 서버에서 요청 처리중 문제가 발생" +
             "\n### Result Code 에 따른 요청 결과" +
             "\n- DUPLICATED: 동일한 이메일이 존재합니다.")
@@ -73,7 +74,7 @@ public class MemberController {
 
 
     @GetMapping("/auth/kakao/callback")
-    public @ResponseBody JoinRequestDto<Object> kakaoCallback(String code)  {
+    public @ResponseBody JoinRequestDto<Object> kakaoCallback(String code) {
         System.out.println("code: " + code);
 
         // 접속토큰 get
@@ -89,12 +90,12 @@ public class MemberController {
         String profileImage = (String) result.get("profileImage");
 
 
-        Optional<Member> member =  memberRepository.findById(idx);
-        if (member.isPresent()){
+        Optional<Member> member = memberRepository.findById(idx);
+        if (member.isPresent()) {
             try {
                 TokenDto tokenDto = memberService.login(email, idx);
 
-                JoinRequestDto<Object> response = JoinRequestDto.of(true,"기존회원",
+                JoinRequestDto<Object> response = JoinRequestDto.of(true, "기존회원",
                         ApiResponseCode.SUCCESS.getCode(), "로그인 성공했음.", tokenDto);
                 response.setUserInfo(result);  // 사용자 정보를 설정합니다.
                 return response;
@@ -105,8 +106,8 @@ public class MemberController {
                 return response;
             }
         } else {
-            TokenDto tokenDto = memberService.join(email,idx, nickname);
-            JoinRequestDto<Object> response = JoinRequestDto.of(true,"신규회원",
+            TokenDto tokenDto = memberService.join(email, idx, nickname);
+            JoinRequestDto<Object> response = JoinRequestDto.of(true, "신규회원",
                     ApiResponseCode.CREATED.getCode(), "회원가입이 완료되었습니다.", tokenDto);
             response.setUserInfo(result);  // 사용자 정보를 설정합니다.
             return response;
@@ -114,13 +115,6 @@ public class MemberController {
     }
 
 
-
-    @Operation(summary = "관리자 회원 리스트 조회", description = "회원의 데이터 반환" +
-            "")
-
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "OK"),
-    })
     // 관리자 페이지 회원 리스트 조회
     @GetMapping("/member/list")
     public ResponseEntity<List<Member>> getMemberList(Principal principal) {
@@ -143,37 +137,15 @@ public class MemberController {
 
     }
 
-    @Operation(summary = "회원정보 조회", description = "회원의 데이터 반환" +
-            "")
-
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "OK"),
-    })
-
-    // 회원 포인트, 가입일, 닉네임 조회 ( 마이페이지 Function )
-    // 엑세스토큰 header에 넣어서 GET요청
-    @GetMapping("/member/info")
-    public ResponseEntity<MemberDto> getMemberInfo(Principal principal) {
-        // 토큰에서 이메일 추출
-        String access_token = "";
-        if (principal == null) {
-            // 사용자가 로그인하지 않은 경우에 대한 처리
-            access_token = "";
-
-        } else {
-            access_token = principal.getName(); // 사용자가 로그인한 경우 이메일 가져오기
+    @PostMapping("/member/update")
+    public ResultDTO update(@RequestParam String idx, @RequestBody Member dto){
+        try {
+            return ResultDTO.of(memberService.update(idx, dto), ApiResponseCode.SUCCESS.getCode(), "닉네임 변경 완료.", null);
+        } catch (CustomException e) {
+            return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
         }
-
-        // 이메일로 멤버 정보 가져오기
-        MemberDto memberDto = memberService.getMemberInfo(access_token);
-
-        // 멤버 정보가 없는 경우 예외 처리
-        if (memberDto == null) {
-            throw new CustomException(CustomExceptionCode.NOT_FOUND);
-        }
-
-        // 멤버 정보 반환
-        return ResponseEntity.ok(memberDto);
     }
+
+
 
 }
