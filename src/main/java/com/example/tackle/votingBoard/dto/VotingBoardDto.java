@@ -28,7 +28,7 @@ public class VotingBoardDto {
     private VotingStatus status;
     private String votingImgUrl;
     private Long votingResult;
-//    private String nickname;
+    private String nickname;
     private Long bettingAmount;
     private byte votingDeadLine;
     private List<String> voteItemsContent;
@@ -52,7 +52,6 @@ public class VotingBoardDto {
 
     public  VotingBoardDto of(VotingBoard votingBoard){
 
-
         return VotingBoardDto.builder()
 
                 .categoryId(votingBoard.getCategoryId())
@@ -62,6 +61,7 @@ public class VotingBoardDto {
                 .content(votingBoard.getContent())
                 .title(votingBoard.getTitle())
                 .idx(votingBoard.getIdx())
+                .nickname(votingBoard.getNickname())
                 .endDate(votingBoard.getEndDate())
                 .postId(votingBoard.getPostId())
                 .bettingAmount(votingBoard.getTotalBetAmount())

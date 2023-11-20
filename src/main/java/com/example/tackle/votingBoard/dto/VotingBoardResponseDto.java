@@ -26,6 +26,7 @@ public class VotingBoardResponseDto {
     private String title;
     private String content;
     private VotingStatus status;
+    private String nickname;
     private String votingImgUrl;
     private Long votingResult;
     private Long bettingAmount;

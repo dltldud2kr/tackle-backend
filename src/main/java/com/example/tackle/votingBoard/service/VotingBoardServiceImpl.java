@@ -75,36 +75,37 @@ public class VotingBoardServiceImpl implements VotingBoardService {
 
 
         VotingBoard votingBoard = VotingBoard.builder()
-                    .categoryId(dto.getCategoryId())
-                    .totalBetAmount(0L)
-                    .content(dto.getContent())
-                    .createdAt(currentDateTime)
-                    .endDate(endDate)
-                    .idx(dto.getIdx())
-                    .votingImgUrl(dto.getVotingImgUrl())
-                    .title(dto.getTitle())
-                    .status(VotingStatus.ING)
-                    .votingDeadLine(votingDeadLineDays)
-                    .build();
+                .categoryId(dto.getCategoryId())
+                .totalBetAmount(0L)
+                .content(dto.getContent())
+                .createdAt(currentDateTime)
+                .endDate(endDate)
+                .nickname(member.getNickname())
+                .idx(dto.getIdx())
+                .votingImgUrl(dto.getVotingImgUrl())
+                .title(dto.getTitle())
+                .status(VotingStatus.ING)
+                .votingDeadLine(votingDeadLineDays)
+                .build();
 
-            VotingBoard savedVotingBoard = votingBoardRepository.save(votingBoard);
+        VotingBoard savedVotingBoard = votingBoardRepository.save(votingBoard);
 
-            //게시글 작성시 1000P 차감
-            member.setPoint(member.getPoint() + BOARD_CREATE_COST);
-            memberRepository.save(member);
+        //게시글 작성시 1000P 차감
+        member.setPoint(member.getPoint() + BOARD_CREATE_COST);
+        memberRepository.save(member);
 
-            // 포인트 사용내역 저장
-            Point pointCreate = pointService.create(dto.getIdx(),BOARD_CREATE_COST, 0);
+        // 포인트 사용내역 저장
+        Point pointCreate = pointService.create(dto.getIdx(),BOARD_CREATE_COST, 0);
 
-            pointRepository.save(pointCreate);
+        pointRepository.save(pointCreate);
 
-            revenueService.create(-BOARD_CREATE_COST,1);
+        revenueService.create(-BOARD_CREATE_COST,1);
 
 
-            Long savedPostId = savedVotingBoard.getPostId();
+        Long savedPostId = savedVotingBoard.getPostId();
 
-            // 투표 항목 로직 (선택지 2개이상 선택)
-            voteItemsService.create(savedPostId,dto.getVoteItemsContent());
+        // 투표 항목 로직 (선택지 2개이상 선택)
+        voteItemsService.create(savedPostId,dto.getVoteItemsContent());
 
 
 
@@ -128,8 +129,11 @@ public class VotingBoardServiceImpl implements VotingBoardService {
 
         boolean isVoting = false;
         String id = "";
+//        String nickname = "";
         if(!email.isEmpty()){
-            id = memberRepository.findByEmail(email).get().getIdx();
+            Optional<Member> member  = memberRepository.findByEmail(email);
+            id = member.get().getIdx();
+//            nickname = member.get().getNickname();
 
             //로그인이 된 회원의 경우 투표를 한 게시글이면 isVoting 을 true로 반환해줌으로써
             // 투표화면이 아닌 투표비율이 뜨는 투표결과화면을 보여주게함.
@@ -196,6 +200,7 @@ public class VotingBoardServiceImpl implements VotingBoardService {
                 .idx(votingBoard.getIdx())
                 .createdAt(votingBoard.getCreatedAt())
                 .voteItemIdMap(voteItemIdMap)
+                .nickname(votingBoard.getNickname())
 //                .voteItemsId(itemIds)
                 .voteItemsContent(itemContents)
                 .endDate(votingBoard.getEndDate())
@@ -518,6 +523,7 @@ public class VotingBoardServiceImpl implements VotingBoardService {
                 .votingResult(votingBoard.getVotingResult())
                 .content(votingBoard.getContent())
                 .title(votingBoard.getTitle())
+                .nickname(votingBoard.getNickname())
                 .idx(votingBoard.getIdx())
                 .endDate(votingBoard.getEndDate())
                 .postId(votingBoard.getPostId())
