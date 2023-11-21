@@ -6,6 +6,7 @@ import com.example.tackle.category.service.CategoryService;
 import com.example.tackle.dto.ResultDTO;
 import com.example.tackle.exception.CustomException;
 import com.example.tackle.replies.dto.RepliesDto;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +17,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/category")
+@Tag(name = "카테고리 API", description = "")
 public class CategoryController {
 
     private final CategoryService categoryService;

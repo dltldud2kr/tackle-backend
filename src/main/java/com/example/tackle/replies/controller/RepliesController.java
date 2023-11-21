@@ -5,6 +5,7 @@ import com.example.tackle.dto.ResultDTO;
 import com.example.tackle.exception.CustomException;
 import com.example.tackle.replies.dto.RepliesDto;
 import com.example.tackle.replies.service.RepliesService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +17,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/replies")
+@Tag(name = "댓글 API", description = "")
 public class RepliesController {
 
     private final RepliesService repliesService;

@@ -237,13 +237,13 @@ public class VotingBoardServiceImpl implements VotingBoardService {
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND_USER));
         // 해당 투표항목이 존재여부 확인
         VoteItems voteItems = voteItemsRepository.findById(dto.getItemId())
-                .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND_ITEMS));
 
         Long postId = voteItems.getPostId();
 
         // 해당 투표 게시글 존재여부 확인
         VotingBoard votingBoard = votingBoardRepository.findById(postId)
-                .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND_BOARD));
 
         //투표를 이미 했는지 확인
         Optional<VoteResult> existingVoteResult = voteResultRepository.findByIdxAndItemId(dto.getIdx(),dto.getItemId());
@@ -323,7 +323,7 @@ public class VotingBoardServiceImpl implements VotingBoardService {
     public boolean delete(String email, Long postId) {
         if(!email.isEmpty()) {
             Member member = memberRepository.findByEmail(email)
-                    .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND));
+                    .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND_USER));
 
             if(member.getRole() == 1){
                 if (votingBoardRepository.existsById(postId)) {
@@ -331,7 +331,7 @@ public class VotingBoardServiceImpl implements VotingBoardService {
                     votingBoardRepository.deleteById(postId);
                     return true;
                 } else{
-                    throw new CustomException(CustomExceptionCode.NOT_FOUND);
+                    throw new CustomException(CustomExceptionCode.NOT_FOUND_BOARD);
                 }
 
             } else {
@@ -414,18 +414,16 @@ public class VotingBoardServiceImpl implements VotingBoardService {
         // 기간이 만료된 경우 투표상태를 END 로 변경
         if (endDate != null && endDate.isBefore(currentDateTime)) {
             votingBoard.setStatus(VotingStatus.END);
-            System.out.println("END로 설정 ");
             votingBoardRepository.save(votingBoard);
-            System.out.println("db에 저장");
 
             return false;
         }
         return true;
     }
 
-    // 투표시 베팅한 금액 체크 10000, 50000, 100000 제한
+    // 투표시 베팅한 금액 체크 1000, 5000, 10000 제한
     public boolean isBettingAmountValid(Long bettingPoint) {
-        return bettingPoint == 10000 || bettingPoint == 50000 || bettingPoint == 100000;
+        return bettingPoint == 1000 || bettingPoint == 5000 || bettingPoint == 10000;
     }
 
 

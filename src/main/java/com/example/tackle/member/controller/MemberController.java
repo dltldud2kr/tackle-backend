@@ -123,6 +123,7 @@ public class MemberController {
             @ApiResponse(responseCode = "200", description = "OK"),
     })
     // 관리자 페이지 회원 리스트 조회
+    @Operation(summary = "회원 리스트", description = "")
     @GetMapping("/member/list")
     public ResponseEntity<List<Member>> getMemberList(Principal principal) {
         String email = "";
@@ -147,6 +148,7 @@ public class MemberController {
 
 
 
+    @Operation(summary = "회원정보 수정", description = "")
     @PostMapping("/member/update")
     public ResultDTO update(@RequestParam String idx, @RequestBody Member dto){
         try {

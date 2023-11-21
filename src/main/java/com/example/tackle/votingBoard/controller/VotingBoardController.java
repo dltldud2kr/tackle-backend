@@ -39,7 +39,9 @@ public class VotingBoardController {
             "\n- 200: 서버요청 정상 성공 "+
             "\n- 500: 서버에서 요청 처리중 문제가 발생" +
             "\n### Result Code 에 따른 요청 결과" +
-            "\n- ")
+            "\n- NOT_ENOUGH_POINTS : \"포인트가 부족합니다." +
+            "\n- INVALID_DEADLINE : \"기한은 1~7일 사이로 설정해야합니다."
+    )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "게시글 작성 성공"),
     })
@@ -114,10 +116,13 @@ public class VotingBoardController {
             "\n- 200: 서버요청 정상 성공 "+
             "\n- 500: 서버에서 요청 처리중 문제가 발생" +
             "\n### Result Code 에 따른 요청 결과" +
-            "\n- NOT_ENOUGH_ITEMS\": \"선택지 항목이 2개 이상이어야 합니다." +
-            "\n- INVALID_DEADLINE\": \"기한은 1~7일 사이로 설정해야합니다." +
-            "\n- EXPIRED_VOTE\": \"투표기간이 만료되었습니다."+
-            "\n- ALREADY_VOTED\": \"이미 투표를 완료했습니다."
+            "\n- NOT_FOUND_USER : \"가입되지 않은 회원입니다." +
+            "\n- NOT_FOUND_ITEMS : \"투표항목이 없는 게시글입니다." +
+            "\n- NOT_FOUND_BOARD : \"해당 게시글을 찾을 수 없습니다." +
+            "\n- EXPIRED_VOTE : \"투표기간이 만료되었습니다."+
+            "\n- ALREADY_VOTED : \"이미 투표를 완료했습니다." +
+            "\n- NOT_ENOUGH_POINTS : \"포인트가 부족합니다." +
+            "\n- INVALID_BETTING_AMOUNT : \"유효하지않은 베팅 금액입니다."
             )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "게시글 투표 성공"),
@@ -134,7 +139,19 @@ public class VotingBoardController {
         //test
     }
 
-
+    @Operation(summary = "게시글 삭제", description = "" +
+            "게시글 삭제 (관리자 기능) ." +
+            "\n### HTTP STATUS 에 따른 조회 결과" +
+            "\n- 200: 서버요청 정상 성공 "+
+            "\n- 500: 서버에서 요청 처리중 문제가 발생" +
+            "\n### Result Code 에 따른 요청 결과" +
+            "\n- NOT_FOUND_USER : \"가입되지 않은 회원입니다." +
+            "\n- NOT_FOUND_BOARD : \"해당 게시글을 찾을 수 없습니다." +
+            "\n- UNAUTHORIZED_USER : \"권한이 없는 사용자입니다."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "게시글 투표 성공"),
+    })
     @DeleteMapping("/delete")
     public ResultDTO delete(@RequestParam Long postId, Principal principal){
         String email = "";
