@@ -306,8 +306,18 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public boolean update(String idx, Member dto) {
-        return false;
+        Member member = memberRepository.findById(idx)
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.UNAUTHORIZED_USER));
+
+        if (member.getIdx().equals(idx) && !memberRepository.existsByNickname(dto.getNickname())) {
+            member.setNickname(dto.getNickname());              // existsByNickname 해당 닉네임의 존재 여부 확인
+            memberRepository.save(member);
+            return true;
+        }
+
+        throw new CustomException(CustomExceptionCode.DUPLICATED);
     }
+
 
 
 }
