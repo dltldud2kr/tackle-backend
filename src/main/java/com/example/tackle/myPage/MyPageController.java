@@ -5,6 +5,8 @@ import com.example.tackle.dto.ResultDTO;
 import com.example.tackle.exception.CustomException;
 import com.example.tackle.member.entity.Member;
 import com.example.tackle.member.repository.MemberRepository;
+import com.example.tackle.point.Point;
+import com.example.tackle.point.PointService;
 import com.example.tackle.replies.dto.RepliesDto;
 import com.example.tackle.replies.service.RepliesService;
 import com.example.tackle.voteResult.dto.VoteResultDto;
@@ -35,7 +37,7 @@ public class MyPageController {
 
     private final RepliesService repliesService;
     private final VotingBoardService votingBoardService;
-    private final MemberRepository memberRepository;
+    private final PointService pointService;
     private final VoteResultService voteResultService;
 
 
@@ -55,7 +57,17 @@ public class MyPageController {
 
     @GetMapping("/myPoint")
     public ResultDTO myPointList(Principal principal){
-        return null;
+
+        String email = getEmailFromPrincipal(principal);
+
+        List<Point> pointList = pointService.myPointList(email);
+
+        try {
+            return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "조회 성공",pointList);
+
+        } catch (CustomException e) {
+            return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
+        }
     }
 
 

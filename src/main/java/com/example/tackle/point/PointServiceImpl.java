@@ -2,12 +2,15 @@ package com.example.tackle.point;
 
 import com.example.tackle._enum.CustomExceptionCode;
 import com.example.tackle.exception.CustomException;
+import com.example.tackle.member.entity.Member;
 import com.example.tackle.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -31,5 +34,16 @@ public class PointServiceImpl implements PointService {
         pointRepository.save(pointCreate);
 
         return pointCreate;
+    }
+
+    @Override
+    public List<Point> myPointList(String email) {
+
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND_USER));
+
+        List<Point> pointList =  pointRepository.findByIdx(member.getIdx());
+
+        return pointList;
     }
 }

@@ -24,10 +24,6 @@ import java.util.List;
 @Tag(name = "투표결과 API", description = "")
 public class VoteResultController {
 
-    private final VoteResultService voteResultService;
-
-
-
 
 
 }
