@@ -147,7 +147,7 @@ public class MemberController {
 
 
 
-    @Operation(summary = "회원정보 수정", description = "")
+    @Operation(summary = "닉네임 변경", description = "")
     @PostMapping("/member/update")
     public ResultDTO update(@RequestParam String idx, @RequestBody Member dto){
         try {

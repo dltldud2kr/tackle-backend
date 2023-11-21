@@ -29,23 +29,24 @@ public class RepliesServiceImpl implements RepliesService {
     private final MemberRepository memberRepository;
 
     public boolean create(RepliesDto dto) {
-        boolean hasVoted = voteOk(String.valueOf(dto.getIdx()), dto.getPostId());
+        Member member = memberRepository.findById(dto.getIdx())
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND));
 
-        if (hasVoted) {
-            Replies replies = Replies.builder()
-                    .idx(dto.getIdx())
-                    .postId(dto.getPostId())
-                    .comment(dto.getComment())
-                    .createdAt(LocalDateTime.now())
-                    .build();
-
-            repliesRepository.save(replies);
-            return true;
-        } else {
+        if (!voteOk(dto.getIdx(), dto.getPostId())) {
             throw new CustomException(CustomExceptionCode.NOT_VOTED);
         }
-    }
 
+        Replies replies = Replies.builder()
+                .idx(dto.getIdx())
+                .nickname(member.getNickname())
+                .postId(dto.getPostId())
+                .comment(dto.getComment())
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        repliesRepository.save(replies);
+        return true;
+    }
     public boolean voteOk(String idx, Long postId) {
         // 사용자가 해당 게시글에 투표 참여했는지 확인
         Optional<VoteResult> voteResult = voteResultRepository.findByIdxAndPostId(idx, postId);
@@ -79,6 +80,7 @@ public class RepliesServiceImpl implements RepliesService {
         return RepliesDto.builder()
                 .repliesId(replies.getRepliesId())
                 .idx(replies.getIdx())
+                .nickname(replies.getNickname())
                 .postId(replies.getPostId())
                 .comment(replies.getComment())
                 .createdAt(replies.getCreatedAt())
@@ -134,7 +136,6 @@ public class RepliesServiceImpl implements RepliesService {
         }
         throw new RuntimeException();
     }
-
 
 
 
