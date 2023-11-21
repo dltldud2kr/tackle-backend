@@ -16,4 +16,6 @@ public interface VotingBoardRepository extends JpaRepository<VotingBoard, Long> 
 
 
     List<VotingBoard> findByCategoryId(Long categoryId);
+
+    List<VotingBoard> findByIdx(String idx);
 }

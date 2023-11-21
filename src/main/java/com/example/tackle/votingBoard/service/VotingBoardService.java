@@ -27,6 +27,14 @@ public interface VotingBoardService {
      */
     List<VotingBoardDto> getBoardList();
 
+    List<VotingBoardDto> getMyBoardList(String idx);
+
+    /**
+     * 카테고리별 게시글 리스트
+     * @param categoryId
+     * @return
+     */
+
     List<VotingBoardDto> getBoardListByCategory(Long categoryId);
 
     /**
@@ -37,8 +45,20 @@ public interface VotingBoardService {
      */
     VotingBoardResponseDto getBoardInfo(Long boardId, String id);
 
+    /**
+     * 투표
+     * @param dto
+     * @return
+     */
+
     boolean voting(VoteResultDto dto);
 
+    /**
+     * 게시글 삭제
+     * @param email
+     * @param postId
+     * @return
+     */
 
     boolean delete(String email, Long postId);
 

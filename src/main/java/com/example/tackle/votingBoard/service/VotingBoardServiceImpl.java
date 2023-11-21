@@ -134,6 +134,16 @@ public class VotingBoardServiceImpl implements VotingBoardService {
         return of(votingBoard);
     }
 
+    @Override
+    public List<VotingBoardDto> getMyBoardList(String email) {
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND_USER));
+
+
+       List<VotingBoard> votingBoardList = votingBoardRepository.findByIdx(member.getIdx());
+
+        return of(votingBoardList);
+    }
 
 
     @Override
@@ -255,26 +265,25 @@ public class VotingBoardServiceImpl implements VotingBoardService {
 
         // 투표 기간이 지났는지 확인
         if(votingBoard.getStatus() == VotingStatus.END) {
-            System.out.println("이미 end상태");
 
             throw new CustomException(CustomExceptionCode.EXPIRED_VOTE);
         } else {
-            // 투표 기한이 지났는지 확인
+
+            // 투표 기한이 지났는지 확인  [ 메서드 ]
             boolean result = updateVotingStatusIfNeeded(votingBoard);
 
 
-            //기한이 지났으면.
+            //기한이 지났으면 false
             if(result == false){
 
-                // 투표자들 승패 결정
+                // 투표자들 승패 결정 [ 메서드 ]
                 voterWL(dto.getPostId());
 
                 // 총 게시글 금액
                 long totalAmount = votingBoard.getTotalBetAmount();
-                //투표 결과에 따른 포인트 지급
-                distributePoint(postId,totalAmount);
 
-                // 사용자들 투표에 승리했는지안했는지 확인. 2023-11-03
+                //투표 결과에 따른 포인트 지급 [ 메서드 ]
+                distributePoint(postId,totalAmount);
 
                 throw new CustomException(CustomExceptionCode.EXPIRED_VOTE);
             }
@@ -285,7 +294,7 @@ public class VotingBoardServiceImpl implements VotingBoardService {
             throw new CustomException(CustomExceptionCode.NOT_ENOUGH_POINTS);
         }
 
-        // 투표시 베팅한 금액 체크 10000, 50000, 100000 제한
+        // 투표시 베팅한 금액 체크 10000, 50000, 100000 제한    [ 메서드 ]
         boolean bettingValid = isBettingAmountValid(dto.getBettingPoint());
 
         if(!bettingValid){
@@ -545,3 +554,5 @@ public class VotingBoardServiceImpl implements VotingBoardService {
 
 
 }
+
+

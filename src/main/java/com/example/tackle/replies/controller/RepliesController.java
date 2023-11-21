@@ -42,15 +42,15 @@ public class RepliesController {
         }
     }
 
-    @GetMapping("/myinfo")
-    public List<RepliesDto> getMyReplies(@RequestParam String idx ){
-        try{
-            List<RepliesDto> myReplies = repliesService.getMyRepliesInfo(idx);
-            return myReplies;
-        } catch (Exception e){
-            return (List<RepliesDto>) ResultDTO.of(false, ApiResponseCode.INTERNAL_SERVER_ERROR.getCode(), "댓글 ㅇ 실패.", null);
-        }
-    }
+//    @GetMapping("/myinfo")
+//    public List<RepliesDto> getMyReplies(@RequestParam String idx ){
+//        try{
+//            List<RepliesDto> myReplies = repliesService.getMyRepliesInfo(idx);
+//            return myReplies;
+//        } catch (Exception e){
+//            return (List<RepliesDto>) ResultDTO.of(false, ApiResponseCode.INTERNAL_SERVER_ERROR.getCode(), "댓글 실패.", null);
+//        }
+//    }
 
     @DeleteMapping("/delete")
     public ResultDTO delete(@RequestParam Long repliesId, String idx) {

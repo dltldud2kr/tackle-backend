@@ -123,7 +123,6 @@ public class MemberController {
             @ApiResponse(responseCode = "200", description = "OK"),
     })
     // 관리자 페이지 회원 리스트 조회
-    @Operation(summary = "회원 리스트", description = "")
     @GetMapping("/member/list")
     public ResponseEntity<List<Member>> getMemberList(Principal principal) {
         String email = "";

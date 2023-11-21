@@ -2,6 +2,8 @@ package com.example.tackle.replies.service;
 
 import com.example.tackle._enum.CustomExceptionCode;
 import com.example.tackle.exception.CustomException;
+import com.example.tackle.member.entity.Member;
+import com.example.tackle.member.repository.MemberRepository;
 import com.example.tackle.replies.dto.RepliesDto;
 import com.example.tackle.replies.entity.Replies;
 import com.example.tackle.replies.repository.RepliesRepository;
@@ -24,6 +26,7 @@ public class RepliesServiceImpl implements RepliesService {
 
     private final RepliesRepository repliesRepository;
     private final VoteResultRepository voteResultRepository;
+    private final MemberRepository memberRepository;
 
     public boolean create(RepliesDto dto) {
         boolean hasVoted = voteOk(String.valueOf(dto.getIdx()), dto.getPostId());
@@ -90,8 +93,11 @@ public class RepliesServiceImpl implements RepliesService {
     }
 
     @Override
-    public List<RepliesDto> getMyRepliesInfo(String idx) {
-        List<Replies> myRepliesList = repliesRepository.findAllByIdx(idx);
+    public List<RepliesDto> getMyRepliesInfo(String email) {
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND_USER));
+
+        List<Replies> myRepliesList = repliesRepository.findByIdx(member.getIdx());
         return RepliesDtoList(myRepliesList);
     }
 
