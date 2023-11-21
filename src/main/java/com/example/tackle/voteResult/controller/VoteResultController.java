@@ -26,34 +26,8 @@ public class VoteResultController {
 
     private final VoteResultService voteResultService;
 
-    @Operation(summary = "내 투표 리스트 조회", description = "내 투표 리스트를" +
-            " 요청합니다." +
-            "\n### HTTP STATUS 에 따른 조회 결과" +
-            "\n- 200: 리스트 조회 성공 "+
-            "\n- 500: 서버에서 요청 처리중 문제가 발생" +
-            "\n### Result Code 에 따른 요청 결과" +
-            "\n- NOT_FOUND: 투표항목이 없습니다.")
 
-    @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "OK"),
-    })
 
-    @GetMapping("/info")
-    public ResultDTO voteResultInfo(Principal principal) {
-        String email = "";
-        if (principal == null) {
-            email = "";
-        } else {
-            email = principal.getName(); // 사용자가 로그인한 경우 이메일 가져오기
-        }
 
-        List<VoteResult> list = voteResultService.list(email);
-        try{
-            return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "조회 성공", list);
-        }catch (CustomException e){
-            return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
-        }
-
-    }
 
 }

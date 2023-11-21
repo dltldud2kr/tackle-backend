@@ -37,12 +37,7 @@ public class VoteResultServiceImpl implements VoteResultService {
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND));
 
-        String id= "";
-        if(!email.isEmpty()) {
-            id = member.getIdx();
-        }
-
-        List<VoteResult> voteResultList = voteResultRepository.findAllByIdx(id);
+        List<VoteResult> voteResultList = voteResultRepository.findAllByIdx(member.getIdx());
 
         for (VoteResult voteResult : voteResultList){
 
@@ -51,44 +46,24 @@ public class VoteResultServiceImpl implements VoteResultService {
             VotingBoard votingBoard = votingBoardRepository.findById(postId)
                     .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND));
 
-            if (votingBoard.getStatus() == VotingStatus.ING){
-                System.out.println("INGpostId :" + voteResult.getPostId());
-                System.out.println("INGidx : " + voteResult.getIdx());
-                System.out.println("INGitemId : " + voteResult.getItemId());
-                System.out.println("INGstatus : " + voteResult.getStatus());
-            }
-
 
             if (votingBoard.getStatus() != VotingStatus.END){
-                System.out.println("end in");
-                System.out.println("=========================================");
-                System.out.println("postId : " + voteResult.getPostId());
-
-                System.out.println("status : " + votingBoard.getStatus());
-
                 //게시글 상태 업데이트
                 boolean result = votingBoardServiceImpl.updateVotingStatusIfNeeded(votingBoard);
-                System.out.println("result 실행 후");
 
                 //투표자 승패 업데이트
 
                 if (result == false){
-                    System.out.println("false에 들어왔음");
-                    System.out.println("postId : " + voteResult.getPostId());
-                    System.out.println("result in");
 
                     //투표자 승패 업데이트
                     votingBoardServiceImpl.voterWL(voteResult.getPostId());
-                    System.out.println("voter In");
 
                     long totalAmount = votingBoard.getTotalBetAmount();
                     // 베팅한 사람들에게 포인트 분배
                     votingBoardServiceImpl.distributePoint(voteResult.getPostId(),totalAmount);
                 }
             }
-            System.out.println("마지막");
-            System.out.println(voteResult.getIdx());
-            System.out.println(voteResult.getStatus());
+
             }
 
 
