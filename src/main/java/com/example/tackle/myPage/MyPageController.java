@@ -3,13 +3,10 @@ package com.example.tackle.myPage;
 import com.example.tackle._enum.ApiResponseCode;
 import com.example.tackle.dto.ResultDTO;
 import com.example.tackle.exception.CustomException;
-import com.example.tackle.member.entity.Member;
-import com.example.tackle.member.repository.MemberRepository;
-import com.example.tackle.point.Point;
-import com.example.tackle.point.PointService;
+import com.example.tackle.point.entity.Point;
+import com.example.tackle.point.service.PointService;
 import com.example.tackle.replies.dto.RepliesDto;
 import com.example.tackle.replies.service.RepliesService;
-import com.example.tackle.voteResult.dto.VoteResultDto;
 import com.example.tackle.voteResult.entity.VoteResult;
 import com.example.tackle.voteResult.service.VoteResultService;
 import com.example.tackle.votingBoard.dto.VotingBoardDto;
@@ -26,7 +23,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -40,7 +36,18 @@ public class MyPageController {
     private final PointService pointService;
     private final VoteResultService voteResultService;
 
+    @Operation(summary = "내 게시글 리스트 조회", description = "내 게시글 리스트를" +
+            " 요청합니다." +
+            "\n### HTTP STATUS 에 따른 조회 결과" +
+            "\n- 200: 리스트 조회 성공 "+
+            "\n- 500: 서버에서 요청 처리중 문제가 발생" +
+            "\n### Result Code 에 따른 요청 결과" +
+            "\n- NOT_FOUND_USER: 가입되지 않은 회원입니다."
+    )
 
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+    })
     @GetMapping("/myBoard")
     public ResultDTO myBoardList(Principal principal){
         String email = getEmailFromPrincipal(principal);
@@ -55,6 +62,19 @@ public class MyPageController {
         }
     }
 
+
+    @Operation(summary = "내 포인트 사용내역 조회", description = "내 포인트 사용내역을" +
+            " 요청합니다." +
+            "\n### HTTP STATUS 에 따른 조회 결과" +
+            "\n- 200: 리스트 조회 성공 "+
+            "\n- 500: 서버에서 요청 처리중 문제가 발생" +
+            "\n### Result Code 에 따른 요청 결과" +
+            "\n- NOT_FOUND_USER: 가입되지 않은 회원입니다."
+    )
+
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+    })
     @GetMapping("/myPoint")
     public ResultDTO myPointList(Principal principal){
 
@@ -77,10 +97,12 @@ public class MyPageController {
             "\n- 200: 리스트 조회 성공 "+
             "\n- 500: 서버에서 요청 처리중 문제가 발생" +
             "\n### Result Code 에 따른 요청 결과" +
-            "\n- NOT_FOUND: 투표항목이 없습니다.")
+            "\n- NOT_FOUND_USER: 가입되지 않은 회원입니다." +
+            "\n- NOT_FOUND_BOARD: 해당 게시글을 찾을 수 없습니다."
+    )
 
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "OK"),
+            @ApiResponse(responseCode = "200", description = "OK"),
     })
     @GetMapping("/myVote")
     public ResultDTO myVoteList(Principal principal){
@@ -96,7 +118,18 @@ public class MyPageController {
     }
 
 
+    @Operation(summary = "내 댓글 조회", description = "내 댓글 리스트를" +
+            " 요청합니다." +
+            "\n### HTTP STATUS 에 따른 조회 결과" +
+            "\n- 200: 리스트 조회 성공 "+
+            "\n- 500: 서버에서 요청 처리중 문제가 발생" +
+            "\n### Result Code 에 따른 요청 결과" +
+            "\n- NOT_FOUND_USER: 가입되지 않은 회원입니다."
+    )
 
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+    })
     @GetMapping("/myReply")
     public ResultDTO MyReplyList(Principal principal){
         String email = getEmailFromPrincipal(principal);
@@ -112,6 +145,8 @@ public class MyPageController {
 
     }
 
+
+    // 시큐리티를 통한 email 요청.
     private String getEmailFromPrincipal(Principal principal) {
         String email = "";
         if (principal != null) {

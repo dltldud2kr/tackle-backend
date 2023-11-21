@@ -1,14 +1,16 @@
-package com.example.tackle.point;
+package com.example.tackle.point.service;
 
 import com.example.tackle._enum.CustomExceptionCode;
 import com.example.tackle.exception.CustomException;
 import com.example.tackle.member.entity.Member;
 import com.example.tackle.member.repository.MemberRepository;
+import com.example.tackle.point.entity.Point;
+import com.example.tackle.point.repository.PointRepository;
+import com.example.tackle.point.service.PointService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
 

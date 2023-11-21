@@ -1,5 +1,6 @@
-package com.example.tackle.point;
+package com.example.tackle.point.repository;
 
+import com.example.tackle.point.entity.Point;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

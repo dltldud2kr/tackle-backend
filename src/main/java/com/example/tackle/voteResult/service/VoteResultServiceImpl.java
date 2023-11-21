@@ -35,7 +35,7 @@ public class VoteResultServiceImpl implements VoteResultService {
     public List<VoteResult> list(String email) {
 
         Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND_USER));
 
         List<VoteResult> voteResultList = voteResultRepository.findAllByIdx(member.getIdx());
 
@@ -44,7 +44,7 @@ public class VoteResultServiceImpl implements VoteResultService {
 
             Long postId = voteResult.getPostId();
             VotingBoard votingBoard = votingBoardRepository.findById(postId)
-                    .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND));
+                    .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND_BOARD));
 
 
             if (votingBoard.getStatus() != VotingStatus.END){
