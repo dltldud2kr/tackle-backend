@@ -3,6 +3,7 @@ package com.example.tackle.member.entity;
 import com.example.tackle._enum.MemberRoles;
 import com.example.tackle.member.service.CustomUserDetailsService;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 @Builder
 @Getter
 @Setter
+@Slf4j  // 로그를 남기기 위한 어노테이션
 public class Member implements UserDetails {
     @Id
     private String idx;
@@ -81,6 +83,11 @@ public class Member implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public void increasePoint(Long amount) {
+        log.info("Increasing point: amount={}", amount);  // 로그를 남김
+        this.point += amount;
     }
 
 }
