@@ -91,8 +91,9 @@ public class PaymentController {
             String jsonString = gson.toJson(response.get("response"));
             JsonObject responseObject = gson.fromJson(jsonString, JsonObject.class);
             Long amount = responseObject.get("amount").getAsLong();
+            String status = responseObject.get("status").getAsString();
 
-            // code == 0 이면 "결제 성공"
+            // status == "paid" 이면 "결제 성공"
             response.put("code", code);
             ((Map<String, Object>) response.get("response")).put("amount", amount);
 
@@ -102,7 +103,7 @@ public class PaymentController {
             String mem_idx = member.getIdx();
             response.put("memberIdx", mem_idx); // 회원의 idx 값을 추가
 
-            if (code == 0) {  // 유효성검사에서 "충전 성공" 이면
+            if (status.equals("paid")) {  // 유효성검사에서 "충전 성공" 이면
                 // Payment 테이블에 충전내역 저장 -- 같은 고유번호로 충전 중복 방지
                 PaymentDto paymentDto = PaymentDto.builder()
                         .idx(mem_idx)
@@ -123,7 +124,9 @@ public class PaymentController {
                 Point pointCreate = pointService.create(mem_idx, amount, 4);
                 pointRepository.save(pointCreate);
 
-
+                response.put("backend", true);
+            } else {
+                response.put("backend", false);
             }
             return response;
         } catch (RuntimeException e) {

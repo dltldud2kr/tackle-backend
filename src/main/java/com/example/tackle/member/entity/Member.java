@@ -87,7 +87,7 @@ public class Member implements UserDetails {
 
     public void increasePoint(Long amount) {
         log.info("Increasing point: amount={}", amount);  // 로그를 남김
-        this.point += amount;
+        this.point += (amount * 10); // 포인트 : 현실 금액 * 10배
     }
 
 }

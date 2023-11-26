@@ -22,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.xml.transform.Result;
 import java.security.Principal;
 import java.util.List;
@@ -76,11 +77,11 @@ public class MemberController {
 
 
     @GetMapping("/auth/kakao/callback")
-    public @ResponseBody JoinRequestDto<Object> kakaoCallback(String code) {
+    public @ResponseBody JoinRequestDto<Object> kakaoCallback(String code, HttpServletRequest request) {
         System.out.println("code: " + code);
 
         // 접속토큰 get
-        String kakaoToken = memberService.getReturnAccessToken(code);
+        String kakaoToken = memberService.getReturnAccessToken(code, request);
 
         // 접속자 정보 get
         // id, connected_at , prop
