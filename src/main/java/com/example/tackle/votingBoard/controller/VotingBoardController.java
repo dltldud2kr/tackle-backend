@@ -8,6 +8,7 @@ import com.example.tackle.voteResult.dto.VoteResultDto;
 import com.example.tackle.votingBoard.dto.GetBoardDto;
 import com.example.tackle.votingBoard.dto.VotingBoardDto;
 import com.example.tackle.votingBoard.dto.VotingBoardResponseDto;
+import com.example.tackle.votingBoard.entity.VotingBoard;
 import com.example.tackle.votingBoard.service.VotingBoardService;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,6 +17,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -108,6 +110,24 @@ public class VotingBoardController {
         } else {
             return votingBoardService.getBoardList();
         }
+    }
+
+    @Operation(summary = "게시글 제목 검색", description = "" +
+            "키워드로 게시글을 검색합니다." +
+            "\n### HTTP STATUS 에 따른 조회 결과" +
+            "\n- 200: 서버요청 정상 성공 "+
+            "\n- 500: 서버에서 요청 처리중 문제가 발생" +
+            "\n### Result Code 에 따른 요청 결과" +
+            "\n- ")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "게시글 검색 성공"),
+    })
+    @GetMapping("/search")
+    public ResponseEntity searchBoard(@RequestParam String keyword) {
+
+        List<VotingBoard> search = votingBoardService.search(keyword);
+
+        return ResponseEntity.ok(search);
     }
 
     @Operation(summary = "게시글 투표", description = "" +

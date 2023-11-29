@@ -21,6 +21,7 @@ public interface VotingBoardRepository extends JpaRepository<VotingBoard, Long> 
 
     List<VotingBoard> findAllByOrderByVotingAmountDesc();
 
+    List<VotingBoard> findByTitleContaining(String keyword);
 
     List<VotingBoard> findByIdx(String idx);
 }

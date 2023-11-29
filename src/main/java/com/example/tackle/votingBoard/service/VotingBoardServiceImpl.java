@@ -425,6 +425,10 @@ public class VotingBoardServiceImpl implements VotingBoardService {
 
     }
 
+    @Override
+    public List<VotingBoard> search(String keyword) {
+        return votingBoardRepository.findByTitleContaining(keyword);
+    }
 
 
     // 투표자 승패 업데이트 메서드

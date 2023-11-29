@@ -3,6 +3,7 @@ package com.example.tackle.votingBoard.service;
 import com.example.tackle.voteResult.dto.VoteResultDto;
 import com.example.tackle.votingBoard.dto.VotingBoardDto;
 import com.example.tackle.votingBoard.dto.VotingBoardResponseDto;
+import com.example.tackle.votingBoard.entity.VotingBoard;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -62,6 +63,11 @@ public interface VotingBoardService {
 
     boolean delete(String email, Long postId);
 
-
+    /**
+     * 게시글 검색
+     * @param keyword
+     * @return
+     */
+    List<VotingBoard> search(String keyword);
 
 }
