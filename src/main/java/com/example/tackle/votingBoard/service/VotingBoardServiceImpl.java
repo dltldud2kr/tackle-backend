@@ -29,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.stream.Collectors;
 
 //33
 @Slf4j
@@ -125,8 +126,45 @@ public class VotingBoardServiceImpl implements VotingBoardService {
     }
 
     private List<VotingBoardDto> getBoardListByCategoryId(Long categoryId) {
-        List<VotingBoard> votingBoard = votingBoardRepository.findByCategoryId(categoryId);
-        return of(votingBoard);
+
+        List<VotingBoard> votingBoard;
+
+        if (categoryId == 0) {
+            votingBoard = votingBoardRepository.findAllByOrderByVotingAmountDesc();
+        } else {
+            votingBoard = votingBoardRepository.findByCategoryId(categoryId);
+        }
+
+        List<VotingBoardDto> votingBoardList = new ArrayList<>();
+
+        for (VotingBoard x : votingBoard) {
+            List<VoteItems> voteItemsList = voteItemsRepository.findByPostId(x.getPostId());
+            List<String> voteItemsContent = voteItemsList.stream()
+                    .map(VoteItems::getContent)
+                    .collect(Collectors.toList());
+
+            VotingBoardDto dto = VotingBoardDto.builder()
+                    .createdAt(x.getCreatedAt())
+                    .categoryId(x.getCategoryId())
+                    .voteItemsContent(voteItemsContent)
+                    .postId(x.getPostId())
+                    .idx(x.getIdx())
+                    .status(x.getStatus())
+                    .title(x.getTitle())
+                    .votingDeadLine(x.getVotingDeadLine())
+                    .votingImgUrl(x.getVotingImgUrl())
+                    .votingResult(x.getVotingResult())
+                    .nickname(x.getNickname())
+                    .votingAmount(x.getVotingAmount())
+                    .bettingAmount(x.getTotalBetAmount())
+                    .content(x.getContent())
+                    .endDate(x.getEndDate())
+                    .build();
+
+            votingBoardList.add(dto);
+        }
+
+        return votingBoardList;
     }
 
     @Override
