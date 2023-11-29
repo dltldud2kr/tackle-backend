@@ -84,6 +84,7 @@ public class VotingBoardServiceImpl implements VotingBoardService {
                 .idx(dto.getIdx())
                 .votingImgUrl(dto.getVotingImgUrl())
                 .title(dto.getTitle())
+                .votingAmount(0L)
                 .status(VotingStatus.ING)
                 .votingDeadLine(votingDeadLineDays)
                 .build();
@@ -130,8 +131,39 @@ public class VotingBoardServiceImpl implements VotingBoardService {
 
     @Override
     public List<VotingBoardDto> getBoardList() {
-        List<VotingBoard> votingBoard = votingBoardRepository.findAll();
-        return of(votingBoard);
+        List<VotingBoard> votingBoards = votingBoardRepository.findAll();
+
+
+        List<VotingBoardDto> votingBoardList = new ArrayList<>();
+
+        for (VotingBoard x : votingBoards) {
+            List<String> voteItems = new ArrayList<>();
+            List<VoteItems> voteItemsList = voteItemsRepository.findByPostId(x.getPostId());
+
+            // 투표 항목 String 값
+            for (VoteItems y : voteItemsList){
+                voteItems.add(y.getContent());
+            }
+            VotingBoardDto dto = VotingBoardDto.builder()
+                    .createdAt(x.getCreatedAt())
+                    .categoryId(x.getCategoryId())
+                    .voteItemsContent(voteItems)
+                    .postId(x.getPostId())
+                    .idx(x.getIdx())
+                    .status(x.getStatus())
+                    .title(x.getTitle())
+                    .votingDeadLine(x.getVotingDeadLine())
+                    .votingImgUrl(x.getVotingImgUrl())
+                    .votingResult(x.getVotingResult())
+                    .nickname(x.getNickname())
+                    .votingAmount(x.getVotingAmount())
+                    .bettingAmount(x.getTotalBetAmount())
+                    .content(x.getContent())
+                    .endDate(x.getEndDate())
+                    .build();
+            votingBoardList.add(dto);
+        }
+        return votingBoardList;
     }
 
     @Override
@@ -323,6 +355,9 @@ public class VotingBoardServiceImpl implements VotingBoardService {
         //투표 수 증가
         voteItems.setVoteCount(voteItems.getVoteCount() + 1);
         voteItemsRepository.save(voteItems);
+        // 게시글 총 투표수 증가
+        votingBoard.setVotingAmount(votingBoard.getVotingAmount() + 1);
+        votingBoardRepository.save(votingBoard);
 
 
         return true;

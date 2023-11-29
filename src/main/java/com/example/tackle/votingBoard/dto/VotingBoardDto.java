@@ -27,6 +27,7 @@ public class VotingBoardDto {
     private String content;
     private VotingStatus status;
     private String votingImgUrl;
+    private Long votingAmount;
     private Long votingResult;
     private String nickname;
     private Long bettingAmount;
