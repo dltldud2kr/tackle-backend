@@ -19,6 +19,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -96,7 +97,7 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public String getReturnAccessToken(String code) {
+    public String getReturnAccessToken(String code, HttpServletRequest request) {
         String access_token = "";
         String refresh_token = "";
         String reqURL = "https://kauth.kakao.com/oauth/token";
@@ -114,8 +115,16 @@ public class MemberServiceImpl implements MemberService {
             StringBuilder sb = new StringBuilder();
             sb.append("grant_type=authorization_code");
 //           sb.append("&client_id=b22a0873d0ccefbc5f331106fa7b9287");  // REST API 키
+
+            String origin = request.getHeader("Origin"); //요청이 들어온 Origin을 가져옵니다.
             sb.append("&client_id=ccf25614050bf5afb0bf4c82541cebb8");  // REST API 키
-            sb.append("&redirect_uri=http://localhost:8080/auth/kakao/callback"); // 앱 CALLBACK 경로
+
+            // 테스트 서버, 퍼블리싱 서버 구분
+            if("http://localhost:3000".equals(origin)){
+                sb.append("&redirect_uri=http://localhost:3000/auth/kakao/callback"); // 앱 CALLBACK 경로
+            } else {
+                sb.append("&redirect_uri=https://app.lunaweb.dev/auth/kakao/callback"); // 다른 경로
+            }
             sb.append("&code=" + code);
             bw.write(sb.toString());
             bw.flush();

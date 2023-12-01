@@ -5,6 +5,7 @@ import com.example.tackle.member.dto.MemberDto;
 import com.example.tackle.member.entity.Member;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 
@@ -25,7 +26,7 @@ public interface MemberService {
      *
      * 카카오 로그인 토큰 값
      */
-    String getReturnAccessToken(String code);
+    String getReturnAccessToken(String code, HttpServletRequest request);
 
     /**
      * 카카오로그인 파싱 결과
