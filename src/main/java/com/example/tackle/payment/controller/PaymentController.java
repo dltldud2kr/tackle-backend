@@ -1,6 +1,8 @@
 package com.example.tackle.payment.controller;
 
+import com.example.tackle._enum.ApiResponseCode;
 import com.example.tackle._enum.CustomExceptionCode;
+import com.example.tackle.dto.ResultDTO;
 import com.example.tackle.exception.CustomException;
 import com.example.tackle.member.entity.Member;
 import com.example.tackle.member.repository.MemberRepository;
@@ -66,7 +68,7 @@ public class PaymentController {
     
     @PostMapping("/payment/valid/{imp_uid}")
     @Transactional
-    public Map<String, Object> validatePayment(@PathVariable String imp_uid, Principal principal) {
+    public ResultDTO validatePayment(@PathVariable String imp_uid, Principal principal) {
         String email = "";
         if (principal == null) {
             // 사용자가 로그인하지 않은 경우에 대한 처리
@@ -99,7 +101,7 @@ public class PaymentController {
 
             // JWT Token으로 멤버 idx 매핑
             Member member = memberRepository.findByEmail(email)
-                    .orElseThrow(() -> new RuntimeException("토큰 값이 올바르지 않습니다."));
+                    .orElseThrow(() -> new CustomException(CustomExceptionCode.PAYMENT_EXPIRED_JWT));
             String mem_idx = member.getIdx();
             response.put("memberIdx", mem_idx); // 회원의 idx 값을 추가
 
@@ -119,18 +121,17 @@ public class PaymentController {
                 memberRepository.save(member);
 
 
-
                 // 포인트 충전내역 저장
                 Point pointCreate = pointService.create(mem_idx, amount, 4);
                 pointRepository.save(pointCreate);
 
-                response.put("backend", true);
             } else {
-                response.put("backend", false);
+                throw new CustomException(CustomExceptionCode.CHARGING_FAILED);
             }
-            return response;
-        } catch (RuntimeException e) {
-            throw new RuntimeException(e);
+            return ResultDTO.of(true, ApiResponseCode.SUCCESS.getCode(), "충전 성공",response);
+        } catch (CustomException e) {
+            return ResultDTO.of(false,  e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
+
         }
     }
 

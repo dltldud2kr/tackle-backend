@@ -41,40 +41,32 @@ public class MemberServiceImpl implements MemberService {
 
     /**
      * 1. 로그인 요청으로 들어온 ID, PWD 기반으로 Authentication 객체 생성
-     * 2. authenticate() 메서드를 통해 요청된 Member에 대한 검증이 진행 => loadUserByUsername 메서드를 실행. 해당 메서드는 검증을 위한 유저 객체를 가져오는 부분으로써, 어떤 객체를 검증할 것인지에 대해 직접 구현
+     * 2. authenticate() 메서드를 통해 요청된 Member에 대한 검증이 진행 => loadUserByUsername 메서드를 실행. 해당 메서드는 검증을 위한 유저 객체를 가져오는 부분으로써,
+     *    어떤 객체를 검증할 것인지에 대해 직접 구현
      * 3. 검증이 정상적으로 통과되었다면 인증된 Authentication객체를 기반으로 JWT 토큰을 생성
      */
     @Transactional
     public TokenDto login(String email, String memberIdx) {
-        log.info("findByUser before");
         Optional<Member> optionalMember =  memberRepository.findById(memberIdx);
         String email1 = optionalMember.get().getEmail();
-        System.out.println("email = " + email);
-        System.out.println("email1 = " + email1);
-        if(email.equals(email1)){
-            System.out.println("동일한 값");
-        } else {
-            System.out.println("동일하지않은값");
-        }
-
 
         memberRepository.findById(memberIdx)
                 .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND_EMAIL));
-        log.info("UsernamePasswordAuthenticationToken before");
+
+        //사용자 인증 정보를 담은 토큰을 생성함. (이메일, 멤버 인덱스 정보 포함 )
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, memberIdx);
 
-        log.info("testest");
+        //authenticationManagerBuilder를 사용하여 authenticationToken을 이용한 사용자의 인증을 시도합니다.
+        // 여기서 실제로 로그인 발생  ( 성공: Authentication 반환 //   실패 : Exception 발생
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-        log.info("authentication after");
 
-        //이게 문제.
+        // 인증이 된 경우 JWT 토큰을 발급  ( 세션관리 , 요청에 대한 인증처리)
         TokenDto tokenDto = jwtTokenProvider.generateToken(authentication);
-        log.info(tokenDto.getAccessToken());
+
         if (tokenDto.getAccessToken().isEmpty()){
             log.info(tokenDto.getAccessToken());
-            log.info("token empty");
         }
-        log.info("generateToken after");
+
         return tokenDto;
     }
 
@@ -119,12 +111,17 @@ public class MemberServiceImpl implements MemberService {
             String origin = request.getHeader("Origin"); //요청이 들어온 Origin을 가져옵니다.
             sb.append("&client_id=ccf25614050bf5afb0bf4c82541cebb8");  // REST API 키
 
+            sb.append("&redirect_uri=http://localhost:8080/auth/kakao/callback");
             // 테스트 서버, 퍼블리싱 서버 구분
-            if("http://localhost:3000".equals(origin)){
-                sb.append("&redirect_uri=http://localhost:3000/auth/kakao/callback"); // 앱 CALLBACK 경로
+            /*
+            if("http://localhost:8080".equals(origin)){
+
+                sb.append("&redirect_uri=http://localhost:8080/auth/kakao/callback"); // 앱 CALLBACK 경로
             } else {
                 sb.append("&redirect_uri=https://app.lunaweb.dev/auth/kakao/callback"); // 다른 경로
             }
+
+             */
             sb.append("&code=" + code);
             bw.write(sb.toString());
             bw.flush();
@@ -231,38 +228,20 @@ public class MemberServiceImpl implements MemberService {
                     .build();
             memberRepository.save(member);
 
-
-
-//
-//            log.info("findByUser before");
-//            Optional<Member> optionalMember =  memberRepository.findById(memberIdx);
-//            String email1 = optionalMember.get().getEmail();
-//            System.out.println("email = " + email);
-//            System.out.println("email1 = " + email1);
-//            if(email.equals(email1)){
-//                System.out.println("동일한 값");
-//            } else {
-//                System.out.println("동일하지않은값");
-//            }
-//
-////
-//            memberRepository.findById(memberIdx)
-//                    .orElseThrow(() -> new CustomException(CustomExceptionCode.NOT_FOUND_EMAIL));
-//            log.info("UsernamePasswordAuthenticationToken before");
+            //사용자 인증 정보를 담은 토큰을 생성함. (이메일, 멤버 인덱스 정보 포함 )
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, memberIdx);
 
-
+            //authenticationManagerBuilder를 사용하여 authenticationToken을 이용한 사용자의 인증을 시도합니다.
+            // 여기서 실제로 로그인 발생  ( 성공: Authentication 반환 //   실패 : Exception 발생
             Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-            log.info("authentication after");
 
-            //이게 문제.
+            // 인증이 된 경우 JWT 토큰을 발급  ( 세션관리 , 요청에 대한 인증처리)
             TokenDto tokenDto = jwtTokenProvider.generateToken(authentication);
             log.info(tokenDto.getAccessToken());
             if (tokenDto.getAccessToken().isEmpty()){
                 log.info(tokenDto.getAccessToken());
                 log.info("token empty");
             }
-            log.info("generateToken after");
             return tokenDto;
 
 
