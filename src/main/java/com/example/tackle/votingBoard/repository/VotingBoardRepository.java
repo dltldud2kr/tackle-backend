@@ -1,8 +1,10 @@
 package com.example.tackle.votingBoard.repository;
 
+import com.example.tackle.votingBoard.dto.VotingBoardDto;
 import com.example.tackle.votingBoard.entity.VotingBoard;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -16,6 +18,10 @@ public interface VotingBoardRepository extends JpaRepository<VotingBoard, Long> 
 
 
     List<VotingBoard> findByCategoryId(Long categoryId);
+
+    List<VotingBoard> findAllByOrderByVotingAmountDesc();
+
+    List<VotingBoard> findByTitleContaining(String keyword);
 
     List<VotingBoard> findByIdx(String idx);
 }

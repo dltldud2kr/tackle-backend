@@ -29,6 +29,7 @@ public class VotingBoard {
     private String votingImgUrl;
     private Long votingResult;
     private Long totalBetAmount;
+    private Long votingAmount;
     private byte votingDeadLine;
 
     private LocalDateTime createdAt;

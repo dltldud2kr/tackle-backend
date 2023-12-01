@@ -29,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.stream.Collectors;
 
 //33
 @Slf4j
@@ -84,6 +85,7 @@ public class VotingBoardServiceImpl implements VotingBoardService {
                 .idx(dto.getIdx())
                 .votingImgUrl(dto.getVotingImgUrl())
                 .title(dto.getTitle())
+                .votingAmount(0L)
                 .status(VotingStatus.ING)
                 .votingDeadLine(votingDeadLineDays)
                 .build();
@@ -124,14 +126,82 @@ public class VotingBoardServiceImpl implements VotingBoardService {
     }
 
     private List<VotingBoardDto> getBoardListByCategoryId(Long categoryId) {
-        List<VotingBoard> votingBoard = votingBoardRepository.findByCategoryId(categoryId);
-        return of(votingBoard);
+
+        List<VotingBoard> votingBoard;
+
+        if (categoryId == 0) {
+            votingBoard = votingBoardRepository.findAllByOrderByVotingAmountDesc();
+        } else {
+            votingBoard = votingBoardRepository.findByCategoryId(categoryId);
+        }
+
+        List<VotingBoardDto> votingBoardList = new ArrayList<>();
+
+        for (VotingBoard x : votingBoard) {
+            List<VoteItems> voteItemsList = voteItemsRepository.findByPostId(x.getPostId());
+            List<String> voteItemsContent = voteItemsList.stream()
+                    .map(VoteItems::getContent)
+                    .collect(Collectors.toList());
+
+            VotingBoardDto dto = VotingBoardDto.builder()
+                    .createdAt(x.getCreatedAt())
+                    .categoryId(x.getCategoryId())
+                    .voteItemsContent(voteItemsContent)
+                    .postId(x.getPostId())
+                    .idx(x.getIdx())
+                    .status(x.getStatus())
+                    .title(x.getTitle())
+                    .votingDeadLine(x.getVotingDeadLine())
+                    .votingImgUrl(x.getVotingImgUrl())
+                    .votingResult(x.getVotingResult())
+                    .nickname(x.getNickname())
+                    .votingAmount(x.getVotingAmount())
+                    .bettingAmount(x.getTotalBetAmount())
+                    .content(x.getContent())
+                    .endDate(x.getEndDate())
+                    .build();
+
+            votingBoardList.add(dto);
+        }
+
+        return votingBoardList;
     }
 
     @Override
     public List<VotingBoardDto> getBoardList() {
-        List<VotingBoard> votingBoard = votingBoardRepository.findAll();
-        return of(votingBoard);
+        List<VotingBoard> votingBoards = votingBoardRepository.findAll();
+
+
+        List<VotingBoardDto> votingBoardList = new ArrayList<>();
+
+        for (VotingBoard x : votingBoards) {
+            List<String> voteItems = new ArrayList<>();
+            List<VoteItems> voteItemsList = voteItemsRepository.findByPostId(x.getPostId());
+
+            // 투표 항목 String 값
+            for (VoteItems y : voteItemsList){
+                voteItems.add(y.getContent());
+            }
+            VotingBoardDto dto = VotingBoardDto.builder()
+                    .createdAt(x.getCreatedAt())
+                    .categoryId(x.getCategoryId())
+                    .voteItemsContent(voteItems)
+                    .postId(x.getPostId())
+                    .idx(x.getIdx())
+                    .status(x.getStatus())
+                    .title(x.getTitle())
+                    .votingDeadLine(x.getVotingDeadLine())
+                    .votingImgUrl(x.getVotingImgUrl())
+                    .votingResult(x.getVotingResult())
+                    .nickname(x.getNickname())
+                    .votingAmount(x.getVotingAmount())
+                    .bettingAmount(x.getTotalBetAmount())
+                    .content(x.getContent())
+                    .endDate(x.getEndDate())
+                    .build();
+            votingBoardList.add(dto);
+        }
+        return votingBoardList;
     }
 
     @Override
@@ -323,6 +393,9 @@ public class VotingBoardServiceImpl implements VotingBoardService {
         //투표 수 증가
         voteItems.setVoteCount(voteItems.getVoteCount() + 1);
         voteItemsRepository.save(voteItems);
+        // 게시글 총 투표수 증가
+        votingBoard.setVotingAmount(votingBoard.getVotingAmount() + 1);
+        votingBoardRepository.save(votingBoard);
 
 
         return true;
@@ -352,6 +425,10 @@ public class VotingBoardServiceImpl implements VotingBoardService {
 
     }
 
+    @Override
+    public List<VotingBoard> search(String keyword) {
+        return votingBoardRepository.findByTitleContaining(keyword);
+    }
 
 
     // 투표자 승패 업데이트 메서드
