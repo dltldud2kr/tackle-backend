@@ -390,7 +390,7 @@ public class VotingBoardServiceImpl implements VotingBoardService {
         voteResultRepository.save(voteResult);
 
         //포인트 테이블 추가
-        pointService.create(dto.getIdx(), dto.getBettingPoint(), 3);
+        pointService.create(dto.getIdx(), -dto.getBettingPoint(), 3);
         // 멤버 테이블 포인트 수정
         member.setPoint(member.getPoint() - dto.getBettingPoint());
         memberRepository.save(member);

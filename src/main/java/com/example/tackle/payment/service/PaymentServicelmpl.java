@@ -68,7 +68,8 @@ public class PaymentServicelmpl implements PaymentService {
 
         RestTemplate restTemplate = new RestTemplate();
         try {
-            ResponseEntity<String> responseEntity = restTemplate.exchange(VALIDATE_URL, HttpMethod.GET, entity, String.class, imp_uid);
+            ResponseEntity<String> responseEntity =
+                    restTemplate.exchange(VALIDATE_URL, HttpMethod.GET, entity, String.class, imp_uid);
 
             Gson gson = new Gson();
             JsonObject response = gson.fromJson(responseEntity.getBody(), JsonObject.class);
