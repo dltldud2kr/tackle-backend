@@ -23,9 +23,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
+ * @author 이시영
  * JwtTokenProvider는 토큰 생성, 토큰 복호화 및 정보 추출, 토큰 유효성 검증의 기능이 구현된 클래스.
- * @author rimsong
- * application.properties에 jwt.secret: 값을 넣어 설정 추가해준 뒤 사용합니다.
+  * application.properties에 jwt.secret: 값을 넣어 설정 추가해준 뒤 사용합니다.
  * jwt.secret는 토큰의 암호화, 복호화를 위한 secret key로서 이후 HS256알고리즘을 사용하기 위해, 256비트보다 커야합니다.
  * 알파벳이 한 단어당 8bit니, 32글자 이상이면 됩니다! 너무 짧으면 에러가 뜹니다.
  */
@@ -36,9 +36,7 @@ import java.util.stream.Collectors;
 public class JwtTokenProvider {
     @Value("${spring.jwt.secret}")
     private String secretKey;
-
     private final MemberRepository memberRepository;
-
 
     // 유저 정보를 가지고 AccessToken, RefreshToken 을 생성하는 메서드
     public TokenDto generateToken(Authentication authentication) {
@@ -68,7 +66,7 @@ public class JwtTokenProvider {
                 .compact();
 
 
-//해당 사용자 정보의 리플래쉬 토큰을 업데이트 해줌. 여기서 authentication.getName은 !
+        //해당 사용자 정보의 리프래쉬 토큰을 업데이트 해줌.
         Optional<Member> byMember = memberRepository.findByEmail(authentication.getName());
 
         if (byMember.isPresent()) {
@@ -88,7 +86,6 @@ public class JwtTokenProvider {
     public Authentication getAuthentication(String accessToken) {
         // 토큰 복호화
         Claims claims = parseClaims(accessToken);
-
 
         if (claims.get("auth") == null) {
             throw new RuntimeException("권한 정보가 없는 토큰입니다.");

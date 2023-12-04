@@ -33,8 +33,6 @@ public class VotingBoardController {
     private final VotingBoardService votingBoardService;
     private final VoteItemsService voteItemsService;
 
-
-
     @Operation(summary = "게시글 작성", description = "" +
             "게시글을 작성합니다." +
             "\n### HTTP STATUS 에 따른 조회 결과" +
@@ -156,7 +154,6 @@ public class VotingBoardController {
         } catch (CustomException e) {
             return ResultDTO.of(false, e.getCustomErrorCode().getStatusCode(), e.getDetailMessage(), null);
         }
-        //test
     }
 
     @Operation(summary = "게시글 삭제", description = "" +
@@ -191,6 +188,4 @@ public class VotingBoardController {
         }
 
     }
-
-
 }

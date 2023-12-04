@@ -141,8 +141,6 @@ public class MemberController {
         } catch (CustomException e) {
             return null;
         }
-
-
     }
 
 

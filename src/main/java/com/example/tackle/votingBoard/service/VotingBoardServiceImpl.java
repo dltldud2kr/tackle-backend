@@ -31,7 +31,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
-//33
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -339,20 +338,23 @@ public class VotingBoardServiceImpl implements VotingBoardService {
             throw new CustomException(CustomExceptionCode.EXPIRED_VOTE);
         } else {
 
-            // 투표 기한이 지났는지 확인  [ 메서드 ]
+            /**
+             * 투표 기한이 지났는지 확인  [ 메서드 ]
+             */
             boolean result = updateVotingStatusIfNeeded(votingBoard);
-
 
             //기한이 지났으면 false
             if(result == false){
 
-                // 투표자들 승패 결정 [ 메서드 ]
+                /**
+                 * 투표자들 승패 결정 [ 메서드 ]
+                 */
                 voterWL(dto.getPostId());
-
                 // 총 게시글 금액
                 long totalAmount = votingBoard.getTotalBetAmount();
-
-                //투표 결과에 따른 포인트 지급 [ 메서드 ]
+                /**
+                 * 투표 결과에 따른 포인트 지급 [ 메서드 ]
+                 */
                 distributePoint(postId,totalAmount);
 
                 throw new CustomException(CustomExceptionCode.EXPIRED_VOTE);
@@ -364,7 +366,9 @@ public class VotingBoardServiceImpl implements VotingBoardService {
             throw new CustomException(CustomExceptionCode.NOT_ENOUGH_POINTS);
         }
 
-        // 투표시 베팅한 금액 체크 10000, 50000, 100000 제한    [ 메서드 ]
+        /**
+         * 투표시 베팅한 금액 체크 10000, 50000, 100000 제한    [ 메서드 ]
+         */
         boolean bettingValid = isBettingAmountValid(dto.getBettingPoint());
 
         if(!bettingValid){
@@ -431,7 +435,10 @@ public class VotingBoardServiceImpl implements VotingBoardService {
     }
 
 
-    // 투표자 승패 업데이트 메서드
+    /**
+     * 투표자 승패 업데이트 메서드
+     * @param boardId
+     */
     public void voterWL (Long boardId){
 
         List<VoteResult> voteResultList = voteResultRepository.findByPostId(boardId);
@@ -490,8 +497,11 @@ public class VotingBoardServiceImpl implements VotingBoardService {
         }
     }
 
-
-    // 투표 기간이 지났으면 투표상태를 END로 변경 로직
+    /**
+     * 투표 기간이 지났으면 투표상태를 END로 변경 로직
+     * @param votingBoard
+     * @return
+     */
     public boolean updateVotingStatusIfNeeded(VotingBoard votingBoard) {
 
         LocalDateTime endDate = votingBoard.getEndDate();
@@ -507,13 +517,20 @@ public class VotingBoardServiceImpl implements VotingBoardService {
         return true;
     }
 
-    // 투표시 베팅한 금액 체크 1000, 5000, 10000 제한
+    /**
+     * 투표시 베팅한 금액 체크 1000, 5000, 10000 제한
+     * @param bettingPoint
+     * @return
+     */
     public boolean isBettingAmountValid(Long bettingPoint) {
         return bettingPoint == 1000 || bettingPoint == 5000 || bettingPoint == 10000;
     }
 
-
-    //  포인트 분배 메서드
+    /**
+     * 포인트 분배 메서드
+     * @param postId
+     * @param totalAmount
+     */
     public void distributePoint(Long postId, Long totalAmount){
         // 수수료를 공제한 총 상금 베팅금
         long totalPrize = totalAmount;
