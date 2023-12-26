@@ -27,6 +27,19 @@
 
 ---
 
+### IMG
+![면메인화](https://github.com/dltldud2kr/tackle-backend/assets/105353307/d2aa12ad-0b8b-4335-88d6-a6c665aabb18)
+![게시글](https://github.com/dltldud2kr/tackle-backend/assets/105353307/a9306162-a3c3-4c90-b92c-ee796c1739a3)
+![마이페이지](https://github.com/dltldud2kr/tackle-backend/assets/105353307/f6b1106f-f468-4168-91f5-c1d1474f4434)
+![카테고리](https://github.com/dltldud2kr/tackle-backend/assets/105353307/ea019c00-e639-4ebb-a46d-93eac999ef21)
+
+
+--- 
+
 ### ERD
 > ![ERD](https://github.com/dltldud2kr/tackle-backend/assets/105353307/636533a1-c941-4387-a560-0616f8d1711c)
 
+---
+
+### 배포링크
+> https://app.lunaweb.dev/
