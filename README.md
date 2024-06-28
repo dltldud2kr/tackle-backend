@@ -16,6 +16,8 @@
 <img src="https://img.shields.io/badge/kakaoAPI-FFCD00?style=for-the-badge&logo=kakao&logoColor=black">
 </p>
 
+### ⏰ 프로젝트 일정
+2023.09.18 ~ 2023.12.04
 
 ### 📝 프로젝트 개요
 
