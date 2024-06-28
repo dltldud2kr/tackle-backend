@@ -64,6 +64,8 @@
 ### 🏢 피그마 링크
 > https://www.figma.com/design/fccLtdHokR6Mwlg7dmudrE/Tackle-%EC%8A%A4%ED%86%A0%EB%A6%AC%EB%B3%B4%EB%93%9C?node-id=0-1&t=zO3IhdZQ6YkgZMab-0
 
+---
+
 ### **🖼️ Sample Screen**
 <img src="https://github.com/dltldud2kr/tackle-backend/assets/105353307/d2aa12ad-0b8b-4335-88d6-a6c665aabb18" alt="면메인화" width="200px" height="390px">
 <img src="https://github.com/dltldud2kr/tackle-backend/assets/105353307/a9306162-a3c3-4c90-b92c-ee796c1739a3" alt="면메인화" width="200px" height="390px">
