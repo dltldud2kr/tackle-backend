@@ -49,6 +49,8 @@
 **😃 포인트 사용**
 - 기프티콘 및 투표 내 베팅으로 사용 가능
 
+---
+
 ### ⚙️ API Document
 > https://api1.lunaweb.dev/swagger-ui/index.html#/
 
