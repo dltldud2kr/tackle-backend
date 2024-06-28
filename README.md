@@ -3,12 +3,26 @@
 
 
 ### Stack
-<img src="https://img.shields.io/badge/JAVA-007396?style=for-the-badge&logo=java&logoColor=white" width:240px><img src="https://img.shields.io/badge/springboot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white"><img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=Docker&logoColor=white"><img src="https://img.shields.io/badge/mariadb-003545?style=for-the-badge&logo=mariadb&logoColor=white"><img src="https://img.shields.io/badge/react-61DAFB?style=for-the-badge&logo=react&logoColor=white"><img src="https://img.shields.io/badge/cloudflare-F38020?style=for-the-badge&logo=cloudflare&logoColor=white"><img src="https://img.shields.io/badge/axios-5A29E4?style=for-the-badge&logo=axios&logoColor=white"><img src="https://img.shields.io/badge/apache tomcat-F8DC75?style=for-the-badge&logo=apachetomcat&logoColor=white">
+<p align="center">
+<img src="https://img.shields.io/badge/JAVA-007396?style=for-the-badge&logo=java&logoColor=white" width:240px>
+<img src="https://img.shields.io/badge/springboot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white">
+<img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=Docker&logoColor=white">
+<img src="https://img.shields.io/badge/mariadb-003545?style=for-the-badge&logo=mariadb&logoColor=white">
+<img src="https://img.shields.io/badge/react-61DAFB?style=for-the-badge&logo=react&logoColor=white">
+<img src="https://img.shields.io/badge/cloudflare-F38020?style=for-the-badge&logo=cloudflare&logoColor=white">
+<img src="https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white">
+<img src="https://img.shields.io/badge/axios-5A29E4?style=for-the-badge&logo=axios&logoColor=white">
+<img src="https://img.shields.io/badge/apache tomcat-F8DC75?style=for-the-badge&logo=apachetomcat&logoColor=black">
+<img src="https://img.shields.io/badge/kakaoAPI-FFCD00?style=for-the-badge&logo=kakao&logoColor=black">
+</p>
 
 
 ### 프로젝트 개요
 
 명확한 답이 없는 문제 및 갈등의 주제에 대하여 다른 사용자들과 "투표" 및 "베팅"을 할 수 있는 커뮤니티 서비스 
+
+### 프로젝트 목표
+갈등의 시대를 살고 있는 현재 대한민국에서 다양한 주제와 의견에 대한 게시글과 투표를 통해 다양한 시각과 의견 공유에 목적을 둠
 
 ---
 
@@ -31,6 +45,9 @@
 > https://app.lunaweb.dev/
 
 ---
+
+### 피그마 링크
+> https://www.figma.com/design/fccLtdHokR6Mwlg7dmudrE/Tackle-%EC%8A%A4%ED%86%A0%EB%A6%AC%EB%B3%B4%EB%93%9C?node-id=0-1&t=zO3IhdZQ6YkgZMab-0
 
 ### IMG
 <img src="https://github.com/dltldud2kr/tackle-backend/assets/105353307/d2aa12ad-0b8b-4335-88d6-a6c665aabb18" alt="면메인화" width="200px" height="390px">
